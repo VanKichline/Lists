@@ -3,3 +3,11 @@
 body {
     margin-top: 1em;
 }
+
+.cbTD {
+    padding-right: 1em;
+}
+
+.todoTable {
+    margin-left: 2em;
+}
