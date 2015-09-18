@@ -6,6 +6,9 @@
         return (
             <div className="container">
                 <div className="row">
+                    <Dropdown list={this.props.users} />
+                </div>
+                <div className="row">
                     <h1>Todo List</h1>
                 </div>
                 <div className="row">
@@ -15,6 +18,20 @@
                 </div>
             </div>
         );
+    }
+});
+
+var Dropdown = React.createClass({
+    render: function() {
+        return ( <select>{this.renderListItems()}</select> );
+    },
+    renderListItems: function() {
+        var items = [];
+        for (var i = 0; i < this.props.list.length; i++) {
+            var item = this.props.list[i];
+            items.push( <option>{item}</option> );
+        }
+        return items;
     }
 });
 
@@ -40,20 +57,27 @@ var Item = React.createClass({
 
 var App = React.createClass({
     getInitialState: function () {
-        return { data: [] };
+        return { data: [], users: [] };
     },
     componentWillMount: function () {
         var xhr = new XMLHttpRequest();
         xhr.open('get', this.props.url, true);
         xhr.onload = function () {
             var webAPIData = JSON.parse(xhr.responseText);
+            var userList = [];
+            webAPIData.map(function (item) {
+                if ($.inArray(item.UserName, userList) < 0) {
+                    userList.push(item.UserName);
+                }
+            });
             this.setState({ data: webAPIData });
+            this.setState({ users: userList });
         }.bind(this);
         xhr.send();
     },
     render: function () {
         return (
-           <MainPane data={this.state.data} />
+           <MainPane data={this.state.data} users={this.state.users} />
         );
     }
 });
