@@ -20,10 +20,18 @@
 
 // Props: ItemText, Done
 var Item = React.createClass({
+    getInitialState: function () {
+        return { isDone: this.props.Done };
+    },
+    handleChange: function (e) {
+        var done = !this.state.isDone;
+        this.setState({ isDone: done });
+    },
     render: function () {
+        var isDone = this.state.isDone;
         return (
             <tr>
-                <td className="cbTD"><input type="checkbox" checked={this.props.Done} /></td>
+                <td className="cbTD"><input type="checkbox" checked={isDone} onChange={this.handleChange} /></td>
                 <td>{this.props.ItemText}</td>
             </tr>
         );
