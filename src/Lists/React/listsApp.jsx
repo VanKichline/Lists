@@ -39,7 +39,7 @@ var Item = React.createClass({
 // Props: dat, usersAndLists
 var MainPane = React.createClass({
     getInitialState: function () {
-        return { usersAndLists: {}, dataAvailable: false };
+        return { usersAndLists: {}, dataAvailable: false, users: [], lists: [], user: "", list: "" };
     },
     componentDidUpdate: function () {
         var uAndL = {};
@@ -52,8 +52,18 @@ var MainPane = React.createClass({
                 }
             }
         });
+        var users = this.extractUsers();
+        var lists = this.extractLists(users[0])
         this.setState({ usersAndLists: uAndL });
         this.setState({ dataAvailable: true });
+        this.setState({ users: users })
+        this.setState({ lists: lists })
+        if ("" === this.state.user && users.length > 0) {
+            this.setState({ user: users[0] });
+        }
+        if ("" === this.state.list && lists.length > 0) {
+            this.setState({ list: lists[0] })
+        }
     },
     extractUsers: function () {
         var users = [];
@@ -71,8 +81,11 @@ var MainPane = React.createClass({
         return lists;
     },
     render: function () {
+        var that = this;
         var todoList = this.props.data.map(function (item) {
-            return <Item ItemText={item.ItemText} Done={item.Done } />
+            if (item.UserName == that.state.user && item.ListName == that.state.list) {
+                return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done })
+            }
         });
         return (
             <div className="container">
@@ -80,9 +93,9 @@ var MainPane = React.createClass({
                     <h1>Todo List</h1>
                 </div>
                 <div className="row">
-                    <Dropdown list={this.extractUsers()} vis={this.state.dataAvailable} />
+                    <Dropdown list={this.state.users} vis={this.state.dataAvailable} />
                     &nbsp;
-                    <Dropdown list={this.extractLists(this.extractUsers()[0])} vis={this.state.dataAvailable} />
+                    <Dropdown list={this.state.lists} vis={this.state.dataAvailable} />
                 </div>
                 <div className="row">
                     <table className="todoTable">
