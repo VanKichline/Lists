@@ -1,15 +1,36 @@
-﻿var MainPane = React.createClass({
+﻿
+var MainPane = React.createClass({
+    getInitialState: function () {
+        return { users: [], lists: [], selectedUser: "", selectedList: "" };
+    },
+    extractUsers: function () {
+        var users = [];
+        for (var user in this.props.usersAndLists) {
+            users.push(user)
+        }
+        return users;
+    },
+    extractLists: function (userName) {
+        var userLists = this.props.usersAndLists[userName];
+        var lists = [];
+        for (var list in userLists) {
+            lists.push(userLists[list]);
+        }
+        return lists;
+    },
     render: function () {
         var todoList = this.props.data.map(function (item) {
-            return <Item ItemText={item.ItemText} Done={item.Done} />
+            return <Item ItemText={item.ItemText} Done={item.Done } />
         });
         return (
             <div className="container">
                 <div className="row">
-                    <Dropdown list={this.props.users} />
+                    <h1>Todo List</h1>
                 </div>
                 <div className="row">
-                    <h1>Todo List</h1>
+                    <Dropdown list={this.extractUsers()} />
+                    &nbsp;
+                    <Dropdown list={this.extractLists(this.extractUsers()[0])} />
                 </div>
                 <div className="row">
                     <table className="todoTable">
@@ -57,27 +78,31 @@ var Item = React.createClass({
 
 var App = React.createClass({
     getInitialState: function () {
-        return { data: [], users: [] };
+        return { data: [], usersAndLists: {} };
     },
     componentWillMount: function () {
         var xhr = new XMLHttpRequest();
         xhr.open('get', this.props.url, true);
         xhr.onload = function () {
             var webAPIData = JSON.parse(xhr.responseText);
-            var userList = [];
+            var allUsers = {};
             webAPIData.map(function (item) {
-                if ($.inArray(item.UserName, userList) < 0) {
-                    userList.push(item.UserName);
+                if (undefined == allUsers[item.UserName]) {
+                    allUsers[item.UserName] = [item.ListName];
+                } else {
+                    if ($.inArray(item.ListName, allUsers[item.UserName]) < 0) {
+                        allUsers[item.UserName].push(item.ListName);
+                    }
                 }
             });
             this.setState({ data: webAPIData });
-            this.setState({ users: userList });
+            this.setState({ usersAndLists: allUsers });
         }.bind(this);
         xhr.send();
     },
     render: function () {
         return (
-           <MainPane data={this.state.data} users={this.state.users} />
+           <MainPane data={this.state.data} usersAndLists={this.state.usersAndLists} />
         );
     }
 });
