@@ -1,7 +1,10 @@
 ﻿
 var Dropdown = React.createClass({
     render: function () {
-        return (<select>{this.renderListItems()}</select>);
+        var ddStyle = {
+            visibility: this.props.vis ? "visible" : "hidden"
+        };
+        return (<select style={ ddStyle }>{this.renderListItems()}</select>);
     },
     renderListItems: function () {
         var items = [];
@@ -36,9 +39,9 @@ var Item = React.createClass({
 // Props: dat, usersAndLists
 var MainPane = React.createClass({
     getInitialState: function () {
-        return { usersAndLists: {} };
+        return { usersAndLists: {}, dataAvailable: false };
     },
-    componentWillUpdate: function () {
+    componentDidUpdate: function () {
         var uAndL = {};
         this.props.data.map(function (item) {
             if (undefined == uAndL[item.UserName]) {
@@ -50,6 +53,7 @@ var MainPane = React.createClass({
             }
         });
         this.setState({ usersAndLists: uAndL });
+        this.setState({ dataAvailable: true });
     },
     extractUsers: function () {
         var users = [];
@@ -76,9 +80,9 @@ var MainPane = React.createClass({
                     <h1>Todo List</h1>
                 </div>
                 <div className="row">
-                    <Dropdown list={this.extractUsers()} />
+                    <Dropdown list={this.extractUsers()} vis={this.state.dataAvailable} />
                     &nbsp;
-                    <Dropdown list={this.extractLists(this.extractUsers()[0])} />
+                    <Dropdown list={this.extractLists(this.extractUsers()[0])} vis={this.state.dataAvailable} />
                 </div>
                 <div className="row">
                     <table className="todoTable">
