@@ -36,6 +36,18 @@ var MainPane = React.createClass({
     getInitialState: function () {
         return { user: "", list: "" };
     },
+    componentDidUpdate: function () {
+        if (this.props.data) {
+            var users = this.extractUsers();
+            if (users.length > 0) {
+                this.setState({user: users[0]});
+                var lists = this.extractLists(users[0]);
+                if (lists.length > 0) {
+                    this.setState({ list: lists[0] });
+                }
+            }
+        }
+    },
     extractUsersAndLists: function () {
         var uAndL = {};
         this.props.data.map(function (item) {
@@ -57,22 +69,25 @@ var MainPane = React.createClass({
         }
         return users;
     },
-    extractLists: function (userName) {
-        var userLists = this.extractUsersAndLists()[userName];
+    extractLists: function () {
+        var user = this.state.user;
         var lists = [];
-        if (userLists) {
-            userLists.map(function (list) {
-                lists.push(list);
-            });
+        if (user) {
+            var userLists = this.extractUsersAndLists()[user];
+            if (userLists) {
+                userLists.map(function (list) {
+                    lists.push(list);
+                });
+            }
         }
         return lists;
     },
     render: function () {
         var that = this;
         var todoList = this.props.data.map(function (item) {
-            //if (item.UserName == that.state.user && item.ListName == that.state.list) {
+            if (item.UserName == that.state.user && item.ListName == that.state.list) {
                 return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done })
-            //}
+            }
         });
         return (
             <div className="container">
@@ -86,7 +101,7 @@ var MainPane = React.createClass({
                             <button className="btn btn-default">New User</button>
                         </div>
                         <div className="form-group">
-                            <Dropdown list={this.extractLists("Van")} />
+                            <Dropdown list={this.extractLists()} />
                             <button className="btn btn-default">New List</button>
                         </div>
                     </form>
