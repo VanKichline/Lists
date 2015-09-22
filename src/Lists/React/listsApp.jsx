@@ -11,32 +11,32 @@
     }
 });
 
-// Props: ItemText, Done
-var Item = React.createClass({
-    getInitialState: function () {
-        return { isDone: this.props.Done };
-    },
-    handleChange: function (e) {
-        var done = !this.state.isDone;
-        this.setState({ isDone: done });
-    },
-    render: function () {
-        var isDone = this.state.isDone;
-        return (
+    // Props: ItemText, Done
+    var Item = React.createClass({
+        getInitialState: function () {
+            return { isDone: this.props.Done };
+        },
+        handleChange: function (e) {
+            var done = !this.state.isDone;
+            this.setState({ isDone: done });
+        },
+        render: function () {
+            var isDone = this.state.isDone;
+            return (
             <tr>
                 <td className="cbTD"><input type="checkbox" checked={isDone} onChange={this.handleChange} /></td>
                 <td>{this.props.ItemText}</td>
             </tr>
         );
-    }
-});
+        }
+    });
 
 // Props: dat, usersAndLists
 var MainPane = React.createClass({
     getInitialState: function () {
-        return { usersAndLists: {}, dataAvailable: false, users: [], lists: [], user: "", list: "" };
+        return { user: "", list: "" };
     },
-    componentDidUpdate: function () {
+    extractUsersAndLists: function () {
         var uAndL = {};
         this.props.data.map(function (item) {
             if (undefined == uAndL[item.UserName]) {
@@ -47,57 +47,46 @@ var MainPane = React.createClass({
                 }
             }
         });
-        var users = this.extractUsers();
-        var lists = this.extractLists(users[0])
-        this.setState({ usersAndLists: uAndL });
-        this.setState({ dataAvailable: true });
-        this.setState({ users: users })
-        this.setState({ lists: lists })
-        if ("" === this.state.user && users.length > 0) {
-            this.setState({ user: users[0] });
-        }
-        if ("" === this.state.list && lists.length > 0) {
-            this.setState({ list: lists[0] })
-        }
+        return uAndL;
     },
     extractUsers: function () {
         var users = [];
-        for (var user in this.state.usersAndLists) {
-            users.push(user)
+        var uAndL = this.extractUsersAndLists();
+        for (user in uAndL) {
+            users.push(user);
         }
         return users;
     },
     extractLists: function (userName) {
-        var userLists = this.state.usersAndLists[userName];
+        var userLists = this.extractUsersAndLists()[userName];
         var lists = [];
-        for (var list in userLists) {
-            lists.push(userLists[list]);
+        if (userLists) {
+            userLists.map(function (list) {
+                lists.push(list);
+            });
         }
         return lists;
     },
     render: function () {
         var that = this;
         var todoList = this.props.data.map(function (item) {
-            if (item.UserName == that.state.user && item.ListName == that.state.list) {
+            //if (item.UserName == that.state.user && item.ListName == that.state.list) {
                 return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done })
-            }
+            //}
         });
-        var formStyle = {
-            visibility: this.state.dataAvailable ? "visible" : "hidden"
-        };
         return (
             <div className="container">
                 <div className="row">
                     <h1>Todo List</h1>
                 </div>
                 <div className="row">
-                    <form className="form-inline selectLine" role="form" style={ formStyle }>
+                    <form className="form-inline selectLine" role="form">
                         <div className="form-group">
-                            <Dropdown list={this.state.users} />
+                            <Dropdown list={this.extractUsers()} />
                             <button className="btn btn-default">New User</button>
                         </div>
                         <div className="form-group">
-                            <Dropdown list={this.state.lists} />
+                            <Dropdown list={this.extractLists("Van")} />
                             <button className="btn btn-default">New List</button>
                         </div>
                     </form>
