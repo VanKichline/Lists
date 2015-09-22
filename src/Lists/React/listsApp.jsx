@@ -33,20 +33,20 @@
 
 // Props: dat, usersAndLists
 var MainPane = React.createClass({
-    getInitialState: function () {
-        return { user: "", list: "" };
-    },
-    componentDidUpdate: function () {
-        if (this.props.data) {
+    getUserAndList: function () {
+        var selUser = "";
+        var selList = "";
+        if (this.props.data && this.props.data.length > 0) {
             var users = this.extractUsers();
             if (users.length > 0) {
-                this.setState({user: users[0]});
+                selUser = users[0];
                 var lists = this.extractLists(users[0]);
                 if (lists.length > 0) {
-                    this.setState({ list: lists[0] });
+                    selList = lists[0];
                 }
             }
         }
+        return { user: selUser, list: selList };
     },
     extractUsersAndLists: function () {
         var uAndL = {};
@@ -69,8 +69,7 @@ var MainPane = React.createClass({
         }
         return users;
     },
-    extractLists: function () {
-        var user = this.state.user;
+    extractLists: function (user) {
         var lists = [];
         if (user) {
             var userLists = this.extractUsersAndLists()[user];
@@ -83,9 +82,9 @@ var MainPane = React.createClass({
         return lists;
     },
     render: function () {
-        var that = this;
+        var userAndList = this.getUserAndList();
         var todoList = this.props.data.map(function (item) {
-            if (item.UserName == that.state.user && item.ListName == that.state.list) {
+            if (item.UserName == userAndList.user && item.ListName == userAndList.list) {
                 return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done })
             }
         });
