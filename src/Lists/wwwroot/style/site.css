@@ -17,3 +17,11 @@ body {
     .todoTable tr:nth-of-type(2n) {
         background-color: whitesmoke;
     }
+
+.selectLine .btn {
+    margin: .5em 1.5em 1em 0;
+}
+
+.selectLine .form-control {
+    margin: .5em .5em 1em .5em;
+}

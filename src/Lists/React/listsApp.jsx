@@ -1,17 +1,12 @@
-﻿
-var Dropdown = React.createClass({
+﻿var Dropdown = React.createClass({
     render: function () {
-        var ddStyle = {
-            visibility: this.props.vis ? "visible" : "hidden"
-        };
-        return (<select style={ ddStyle }>{this.renderListItems()}</select>);
+        return (<select className="form-control">{this.renderListItems()}</select>);
     },
     renderListItems: function () {
         var items = [];
-        for (var i = 0; i < this.props.list.length; i++) {
-            var item = this.props.list[i];
+        this.props.list.map(function (item) {
             items.push(<option>{item}</option>);
-        }
+        });
         return items;
     }
 });
@@ -87,15 +82,25 @@ var MainPane = React.createClass({
                 return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done })
             }
         });
+        var formStyle = {
+            visibility: this.state.dataAvailable ? "visible" : "hidden"
+        };
         return (
             <div className="container">
                 <div className="row">
                     <h1>Todo List</h1>
                 </div>
                 <div className="row">
-                    <Dropdown list={this.state.users} vis={this.state.dataAvailable} />
-                    &nbsp;
-                    <Dropdown list={this.state.lists} vis={this.state.dataAvailable} />
+                    <form className="form-inline selectLine" role="form" style={ formStyle }>
+                        <div className="form-group">
+                            <Dropdown list={this.state.users} />
+                            <button className="btn btn-default">New User</button>
+                        </div>
+                        <div className="form-group">
+                            <Dropdown list={this.state.lists} />
+                            <button className="btn btn-default">New List</button>
+                        </div>
+                    </form>
                 </div>
                 <div className="row">
                     <table className="todoTable">
