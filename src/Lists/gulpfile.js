@@ -1,4 +1,4 @@
-/// <binding ProjectOpened='default' />
+/// <binding BeforeBuild='react' ProjectOpened='default' />
 var gulp = require("gulp");
 var react = require("gulp-react");
 
