@@ -49,44 +49,52 @@ var MainPane = React.createClass({
         data: React.PropTypes.array.isRequired
     },
     getInitialState: function () {
-        return {
-            user: "",
-            list: ""
-        };
+        return { user: "", list: "" };
     },
     userChanged: function (evt) {
         this.setState({ user: evt.target.value });
-        this.setState({ list: "" });
+        this.setState({ list: "" });    // An appropriate default will be selected automatically.
     },
     listChanged: function (evt) {
         this.setState({ list: evt.target.value });
     },
-    getUserAndList: function () {
+    addUser: function () {
+        alert("TBD: Add User");
+    },
+    addList: function () {
+        var user = this.getUser();
+        alert("TBD: Add list for user " + user);
+    },
+    getUser: function () {
         var selUser = this.state.user || getDefaultUser(this.props.data);
-        var selList = this.state.list || getDefaultList(this.props.data, selUser);
-        return { user: selUser, list: selList };
+        return selUser;
+    },
+    getList: function (user) {
+        var selList = this.state.list || getDefaultList(this.props.data, user);
+        return selList;
+    },
+    toggleHide: function () {
+        this.setState({hideCompleted: !this.state.hideCompleted});
     },
     render: function () {
-        var userAndList = this.getUserAndList();
+        var user = this.getUser();
+        var list = this.getList(user);
         var todoList = this.props.data.map(function (item) {
-            if (item.UserName == userAndList.user && item.ListName == userAndList.list) {
-                return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done })
+            if (item.UserName == user && item.ListName == list) {
+                return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done });
             }
         });
         return (
-            <div className="container">
-                <div className="row">
-                    <h1>Todo List</h1>
-                </div>
+            <div>
                 <div className="row">
                     <form className="form-inline selectLine" role="form">
                         <div className="form-group">
                             <Dropdown list={extractUsers(this.props.data)} onChange={this.userChanged} />
-                            <button className="btn btn-default">New User</button>
+                            <button className="btn btn-default" onClick={this.addUser}>New User</button>
                         </div>
                         <div className="form-group">
-                            <Dropdown list={extractLists(this.props.data, userAndList.user)} onChange={this.listChanged} />
-                            <button className="btn btn-default">New List</button>
+                            <Dropdown list={extractLists(this.props.data, user)} onChange={this.listChanged} />
+                            <button className="btn btn-default" onClick={this.addList}>New List</button>
                         </div>
                     </form>
                 </div>
@@ -95,6 +103,7 @@ var MainPane = React.createClass({
                         {todoList}
                     </table>
                 </div>
+                <hr />
             </div>
         );
     }
@@ -116,7 +125,12 @@ var App = React.createClass({
     },
     render: function () {
         return (
-           <MainPane data={this.state.data} />
+            <div className="container">
+                <div className="row">
+                    <h1>Todo List</h1>
+                </div>
+                <MainPane data={this.state.data} />
+            </div>
         );
     }
 });
@@ -125,12 +139,8 @@ var App = React.createClass({
 React.render(<App url="/api/items/" />, document.getElementById('content'));
 
 
+// #region Utility Functions
 
-
-
-
-// Utility routines for dealing with the basic data strcture (data): an array of Items.
-//
 function extractUsersAndLists(data) {
     var uAndL = {};
     data.map(function (item) {
@@ -190,3 +200,5 @@ function getDefaultList(data, user) {
     }
     return selList;
 }
+
+// #endregion

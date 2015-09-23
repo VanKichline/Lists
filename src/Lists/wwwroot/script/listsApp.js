@@ -49,44 +49,52 @@ var MainPane = React.createClass({displayName: "MainPane",
         data: React.PropTypes.array.isRequired
     },
     getInitialState: function () {
-        return {
-            user: "",
-            list: ""
-        };
+        return { user: "", list: "" };
     },
     userChanged: function (evt) {
         this.setState({ user: evt.target.value });
-        this.setState({ list: "" });
+        this.setState({ list: "" });    // An appropriate default will be selected automatically.
     },
     listChanged: function (evt) {
         this.setState({ list: evt.target.value });
     },
-    getUserAndList: function () {
+    addUser: function () {
+        alert("TBD: Add User");
+    },
+    addList: function () {
+        var user = this.getUser();
+        alert("TBD: Add list for user " + user);
+    },
+    getUser: function () {
         var selUser = this.state.user || getDefaultUser(this.props.data);
-        var selList = this.state.list || getDefaultList(this.props.data, selUser);
-        return { user: selUser, list: selList };
+        return selUser;
+    },
+    getList: function (user) {
+        var selList = this.state.list || getDefaultList(this.props.data, user);
+        return selList;
+    },
+    toggleHide: function () {
+        this.setState({hideCompleted: !this.state.hideCompleted});
     },
     render: function () {
-        var userAndList = this.getUserAndList();
+        var user = this.getUser();
+        var list = this.getList(user);
         var todoList = this.props.data.map(function (item) {
-            if (item.UserName == userAndList.user && item.ListName == userAndList.list) {
-                return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done })
+            if (item.UserName == user && item.ListName == list) {
+                return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done });
             }
         });
         return (
-            React.createElement("div", {className: "container"}, 
-                React.createElement("div", {className: "row"}, 
-                    React.createElement("h1", null, "Todo List")
-                ), 
+            React.createElement("div", null, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("form", {className: "form-inline selectLine", role: "form"}, 
                         React.createElement("div", {className: "form-group"}, 
                             React.createElement(Dropdown, {list: extractUsers(this.props.data), onChange: this.userChanged}), 
-                            React.createElement("button", {className: "btn btn-default"}, "New User")
+                            React.createElement("button", {className: "btn btn-default", onClick: this.addUser}, "New User")
                         ), 
                         React.createElement("div", {className: "form-group"}, 
-                            React.createElement(Dropdown, {list: extractLists(this.props.data, userAndList.user), onChange: this.listChanged}), 
-                            React.createElement("button", {className: "btn btn-default"}, "New List")
+                            React.createElement(Dropdown, {list: extractLists(this.props.data, user), onChange: this.listChanged}), 
+                            React.createElement("button", {className: "btn btn-default", onClick: this.addList}, "New List")
                         )
                     )
                 ), 
@@ -94,7 +102,8 @@ var MainPane = React.createClass({displayName: "MainPane",
                     React.createElement("table", {className: "todoTable"}, 
                         todoList
                     )
-                )
+                ), 
+                React.createElement("hr", null)
             )
         );
     }
@@ -116,7 +125,12 @@ var App = React.createClass({displayName: "App",
     },
     render: function () {
         return (
-           React.createElement(MainPane, {data: this.state.data})
+            React.createElement("div", {className: "container"}, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("h1", null, "Todo List")
+                ), 
+                React.createElement(MainPane, {data: this.state.data})
+            )
         );
     }
 });
@@ -125,12 +139,8 @@ var App = React.createClass({displayName: "App",
 React.render(React.createElement(App, {url: "/api/items/"}), document.getElementById('content'));
 
 
+// #region Utility Functions
 
-
-
-
-// Utility routines for dealing with the basic data strcture (data): an array of Items.
-//
 function extractUsersAndLists(data) {
     var uAndL = {};
     data.map(function (item) {
@@ -190,3 +200,5 @@ function getDefaultList(data, user) {
     }
     return selList;
 }
+
+// #endregion
