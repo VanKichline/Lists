@@ -1,4 +1,7 @@
 ﻿var Dropdown = React.createClass({
+    propTypes:  {
+        list: React.PropTypes.array.isRequired
+    },
     render: function () {
         return (<select className="form-control">{this.renderListItems()}</select>);
     },
@@ -11,28 +14,35 @@
     }
 });
 
-    // Props: ItemText, Done
-    var Item = React.createClass({
-        getInitialState: function () {
-            return { isDone: this.props.Done };
-        },
-        handleChange: function (e) {
-            var done = !this.state.isDone;
-            this.setState({ isDone: done });
-        },
-        render: function () {
-            var isDone = this.state.isDone;
-            return (
-            <tr>
-                <td className="cbTD"><input type="checkbox" checked={isDone} onChange={this.handleChange} /></td>
-                <td>{this.props.ItemText}</td>
-            </tr>
-        );
-        }
-    });
 
-// Props: dat, usersAndLists
+var Item = React.createClass({
+    propTypes: {
+        ItemText: React.PropTypes.string.isRequired,
+        Done: React.PropTypes.bool.isRequired
+    },
+    getInitialState: function () {
+        return { isDone: this.props.Done };
+    },
+    handleChange: function (e) {
+        var done = !this.state.isDone;
+        this.setState({ isDone: done });
+    },
+    render: function () {
+        var isDone = this.state.isDone;
+        return (
+        <tr>
+            <td className="cbTD"><input type="checkbox" checked={isDone} onChange={this.handleChange} /></td>
+            <td>{this.props.ItemText}</td>
+        </tr>
+    );
+    }
+});
+
+
 var MainPane = React.createClass({
+    propTypes: {
+        data: React.PropTypes.array.isRequired
+    },
     getUserAndList: function () {
         var selUser = "";
         var selList = "";
@@ -100,14 +110,13 @@ var MainPane = React.createClass({
                             <button className="btn btn-default">New User</button>
                         </div>
                         <div className="form-group">
-                            <Dropdown list={this.extractLists()} />
+                            <Dropdown list={this.extractLists(userAndList.user)} />
                             <button className="btn btn-default">New List</button>
                         </div>
                     </form>
                 </div>
                 <div className="row">
-                    <table className="todoTable">
-                        {todoList}
+                    <table className="todoTable">{todoList}
                     </table>
                 </div>
             </div>
@@ -115,9 +124,10 @@ var MainPane = React.createClass({
     }
 });
 
+
 var App = React.createClass({
     getInitialState: function () {
-        return { data: [], usersAndLists: {} };
+        return { data: [] };
     },
     componentWillMount: function () {
         var xhr = new XMLHttpRequest();
@@ -132,7 +142,7 @@ var App = React.createClass({
         return (
            <MainPane data={this.state.data} />
         );
-    }
+}
 });
 
 
