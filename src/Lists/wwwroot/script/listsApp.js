@@ -1,6 +1,7 @@
 var Dropdown = React.createClass({displayName: "Dropdown",
     propTypes: {
-        list: React.PropTypes.array.isRequired
+        list: React.PropTypes.array.isRequired,
+        onChange: React.PropTypes.func.isRequired
     },
     handleChange: function (evt) {
         this.props.onChange(evt);
@@ -22,22 +23,23 @@ var Dropdown = React.createClass({displayName: "Dropdown",
 
 var Item = React.createClass({displayName: "Item",
     propTypes: {
-        ItemText: React.PropTypes.string.isRequired,
-        Done: React.PropTypes.bool.isRequired
+        item: React.PropTypes.object.isRequired,
+        onChange: React.PropTypes.func.isRequired
     },
     getInitialState: function () {
-        return { isDone: this.props.Done };
+        return { isDone: this.props.item.Done };
     },
-    handleChange: function (e) {
+    handleChange: function (evt) {
         var done = !this.state.isDone;
         this.setState({ isDone: done });
+        this.props.onChange(this.props.item, done);
     },
     render: function () {
         var isDone = this.state.isDone;
         return (
             React.createElement("tr", null, 
                 React.createElement("td", {className: "cbTD"}, React.createElement("input", {type: "checkbox", checked: isDone, onChange: this.handleChange})), 
-                React.createElement("td", null, this.props.ItemText)
+                React.createElement("td", null, this.props.item.ItemText)
             )
         );
     }
@@ -76,12 +78,16 @@ var MainPane = React.createClass({displayName: "MainPane",
     toggleHide: function () {
         this.setState({hideCompleted: !this.state.hideCompleted});
     },
+    itemChanged: function (item, state) {
+        console.log(item.ListName + "/" + item.ItemText + "->" + state);
+    },
     render: function () {
         var user = this.getUser();
         var list = this.getList(user);
+        var that = this;
         var todoList = this.props.data.map(function (item) {
             if (item.UserName == user && item.ListName == list) {
-                return React.createElement(Item, { ItemText: item.ItemText, Done: item.Done });
+                return React.createElement(Item, { item: item, onChange: that.itemChanged });
             }
         });
         return (
