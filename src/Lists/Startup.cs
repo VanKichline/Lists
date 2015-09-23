@@ -33,10 +33,6 @@ namespace Lists
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<ItemContext>(options =>
-                    options.UseSqlServer(Configuration["Data:DefaultConnection:ConnectionString"]));
         }
 
         // Configure is called after ConfigureServices is called.
