@@ -20,28 +20,28 @@ var Dropdown = React.createClass({displayName: "Dropdown",
 });
 
 
-    var Item = React.createClass({displayName: "Item",
-        propTypes: {
-            ItemText: React.PropTypes.string.isRequired,
-            Done: React.PropTypes.bool.isRequired
-        },
-        getInitialState: function () {
-            return { isDone: this.props.Done };
-        },
-        handleChange: function (e) {
-            var done = !this.state.isDone;
-            this.setState({ isDone: done });
-        },
-        render: function () {
-            var isDone = this.state.isDone;
-            return (
+var Item = React.createClass({displayName: "Item",
+    propTypes: {
+        ItemText: React.PropTypes.string.isRequired,
+        Done: React.PropTypes.bool.isRequired
+    },
+    getInitialState: function () {
+        return { isDone: this.props.Done };
+    },
+    handleChange: function (e) {
+        var done = !this.state.isDone;
+        this.setState({ isDone: done });
+    },
+    render: function () {
+        var isDone = this.state.isDone;
+        return (
             React.createElement("tr", null, 
                 React.createElement("td", {className: "cbTD"}, React.createElement("input", {type: "checkbox", checked: isDone, onChange: this.handleChange})), 
                 React.createElement("td", null, this.props.ItemText)
             )
         );
-        }
-    });
+    }
+});
 
 
 var MainPane = React.createClass({displayName: "MainPane",
