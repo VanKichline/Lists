@@ -4,6 +4,10 @@ body {
     margin-top: 1em;
 }
 
+.button-spacing {
+    margin-right: 2em;
+}
+
 .todoTable {
     margin-left: 2em;
     width: 100%;

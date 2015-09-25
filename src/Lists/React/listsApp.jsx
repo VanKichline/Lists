@@ -10,40 +10,41 @@
         return (<select className="form-control" onChange={this.handleChange}>
             {this.renderListItems()}
         </select>);
-},
-renderListItems: function () {
-    var items = [];
-    this.props.list.map(function (item) {
-        items.push(<option>{item}</option>);
-    });
-    return items;
-}
+    },
+    renderListItems: function () {
+        var items = [];
+        this.props.list.map(function (item) {
+            items.push(<option>{item}</option>);
+        });
+        return items;
+    }
 });
 
 
-var Item = React.createClass({
-    propTypes: {
-        item: React.PropTypes.object.isRequired,
-        onChange: React.PropTypes.func.isRequired
-    },
-    getInitialState: function () {
-        return { isDone: this.props.item.Done };
-    },
-    handleChange: function (evt) {
-        var done = !this.state.isDone;
-        this.setState({ isDone: done });
-        this.props.onChange(this.props.item, done);
-    },
-    render: function () {
-        var isDone = this.state.isDone;
-        return (
+    var Item = React.createClass({
+        propTypes: {
+            item: React.PropTypes.object.isRequired,
+            onChange: React.PropTypes.func.isRequired
+        },
+        getInitialState: function () {
+            return { isDone: this.props.item.Done };
+        },
+        handleChange: function (evt) {
+            var done = !this.state.isDone;
+            this.setState({ isDone: done });
+            this.props.onChange(this.props.item, done);
+        },
+        render: function () {
+            var isDone = this.state.isDone;
+            return (
             <tr>
                 <td className="cbTD"><input type="checkbox" checked={isDone} onChange={this.handleChange} /></td>
                 <td>{this.props.item.ItemText}</td>
+                <td><span className="glyphicon glyphicon-remove-sign"></span></td>
             </tr>
         );
-    }
-});
+        }
+    });
 
 
 var MainPane = React.createClass({
@@ -76,7 +77,7 @@ var MainPane = React.createClass({
         return selList;
     },
     toggleHide: function () {
-        this.setState({hideCompleted: !this.state.hideCompleted});
+        this.setState({ hideCompleted: !this.state.hideCompleted });
     },
     itemChanged: function (item, state) {
         console.log(item.ListName + "/" + item.ItemText + "->" + state);
@@ -96,11 +97,15 @@ var MainPane = React.createClass({
                     <form className="form-inline selectLine" role="form">
                         <div className="form-group">
                             <Dropdown list={extractUsers(this.props.data)} onChange={this.userChanged} />
-                            <button className="btn btn-default" onClick={this.addUser}>New User</button>
+                            <button className="btn btn-default" onClick={this.addUser}>
+                                <span className="glyphicon glyphicon-plus-sign" />
+                            </button>
                         </div>
                         <div className="form-group">
                             <Dropdown list={extractLists(this.props.data, user)} onChange={this.listChanged} />
-                            <button className="btn btn-default" onClick={this.addList}>New List</button>
+                            <button className="btn btn-default" onClick={this.addList}>
+                                <span className="glyphicon glyphicon-plus-sign" />
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -110,9 +115,20 @@ var MainPane = React.createClass({
                     </table>
                 </div>
                 <hr />
+                <div className="row">
+                    <button className="btn btn-default button-spacing">
+                        <span className="glyphicon glyphicon-plus-sign" />
+                    </button>
+                    <button className="btn btn-default button-spacing">
+                        <span className="glyphicon glyphicon-remove-sign" /> Checked
+                    </button>
+                    <button className="btn btn-default">
+                        Hide <span className="glyphicon glyphicon-ok-sign" />
+                    </button>
+                </div>
             </div>
         );
-}
+    }
 });
 
 
@@ -208,4 +224,3 @@ function getDefaultList(data, user) {
 }
 
 // #endregion
-
