@@ -1,20 +1,25 @@
 var Dropdown = React.createClass({displayName: "Dropdown",
     propTypes: {
         list: React.PropTypes.array.isRequired,
+        selection: React.PropTypes.string,
         onChange: React.PropTypes.func.isRequired
     },
+    getInitialState: function () {
+        return { sel: this.props.selection };
+    },
     handleChange: function (evt) {
+        this.setState({ sel: evt.target.value })
         this.props.onChange(evt);
     },
     render: function () {
-        return (React.createElement("select", {className: "form-control", onChange: this.handleChange}, 
+        return (React.createElement("select", {className: "form-control", value: this.state.sel, onChange: this.handleChange}, 
             this.renderListItems()
         ));
     },
     renderListItems: function () {
         var items = [];
         this.props.list.map(function (item) {
-            items.push(React.createElement("option", null, item));
+            items.push(React.createElement("option", {key: item}, item));
         });
         return items;
     }
@@ -49,10 +54,12 @@ var Dropdown = React.createClass({displayName: "Dropdown",
 
 var MainPane = React.createClass({displayName: "MainPane",
     propTypes: {
-        data: React.PropTypes.array.isRequired
+        data: React.PropTypes.array.isRequired,
+        defaultUser: React.PropTypes.string,
+        defaultList: React.PropTypes.string
     },
     getInitialState: function () {
-        return { user: "", list: "" };
+        return { user: this.props.defaultUser, list: this.props.defaultList };
     },
     userChanged: function (evt) {
         this.setState({ user: evt.target.value });
@@ -88,7 +95,7 @@ var MainPane = React.createClass({displayName: "MainPane",
         var that = this;
         var todoList = this.props.data.map(function (item) {
             if (item.UserName == user && item.ListName == list) {
-                return React.createElement(Item, { item: item, onChange: that.itemChanged });
+                return React.createElement(Item, {item: item, key: item.id, onChange: that.itemChanged});
             }
         });
         return (
@@ -96,13 +103,13 @@ var MainPane = React.createClass({displayName: "MainPane",
                 React.createElement("div", {className: "row"}, 
                     React.createElement("form", {className: "form-inline selectLine", role: "form"}, 
                         React.createElement("div", {className: "form-group"}, 
-                            React.createElement(Dropdown, {list: extractUsers(this.props.data), onChange: this.userChanged}), 
+                            React.createElement(Dropdown, {list: extractUsers(this.props.data), selection: this.state.user, onChange: this.userChanged}), 
                             React.createElement("button", {className: "btn btn-default", onClick: this.addUser}, 
                                 React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                             )
                         ), 
                         React.createElement("div", {className: "form-group"}, 
-                            React.createElement(Dropdown, {list: extractLists(this.props.data, user), onChange: this.listChanged}), 
+                            React.createElement(Dropdown, {list: extractLists(this.props.data, user), selection: this.state.list, onChange: this.listChanged}), 
                             React.createElement("button", {className: "btn btn-default", onClick: this.addList}, 
                                 React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                             )
@@ -151,7 +158,8 @@ var App = React.createClass({displayName: "App",
                 React.createElement("div", {className: "row"}, 
                     React.createElement("h1", null, "Todo List")
                 ), 
-                React.createElement(MainPane, {data: this.state.data})
+                /* TODO: get defaults from cookies */
+                React.createElement(MainPane, {data: this.state.data, defaultUser: "", defaultList: ""})
             )
         );
     }
