@@ -63,9 +63,12 @@ var MainPane = React.createClass({displayName: "MainPane",
     },
     userChanged: function (evt) {
         this.setState({ user: evt.target.value });
+        setCookie("defaultUser", evt.target.value, 30);
         this.setState({ list: "" });    // An appropriate default will be selected automatically.
+        setCookie("defaultList", "", 0);
     },
     listChanged: function (evt) {
+        setCookie("defaultList", evt.target.value, 30);
         this.setState({ list: evt.target.value });
     },
     addUser: function () {
@@ -143,6 +146,12 @@ var App = React.createClass({displayName: "App",
     getInitialState: function () {
         return { data: [] };
     },
+    getDefaultProps: function () {
+        return {
+            user: getCookie('defaultUser'),
+            list: getCookie('defaultList')
+        };
+    },
     componentWillMount: function () {
         var xhr = new XMLHttpRequest();
         xhr.open('get', this.props.url, true);
@@ -158,8 +167,7 @@ var App = React.createClass({displayName: "App",
                 React.createElement("div", {className: "row"}, 
                     React.createElement("h1", null, "Todo List")
                 ), 
-                /* TODO: get defaults from cookies */
-                React.createElement(MainPane, {data: this.state.data, defaultUser: "", defaultList: ""})
+                React.createElement(MainPane, {data: this.state.data, defaultUser: this.props.user, defaultList: this.props.list})
             )
         );
     }
@@ -229,6 +237,27 @@ function getDefaultList(data, user) {
         }
     }
     return selList;
+}
+
+// Cookie functions: http://www.w3schools.com/js/js_cookies.asp
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ')
+            c = c.substring(1);
+        if (c.indexOf(name) == 0)
+            return c.substring(name.length, c.length);
+    }
+    return "";
 }
 
 // #endregion
