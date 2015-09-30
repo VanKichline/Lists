@@ -1,20 +1,32 @@
+// Lists, a JSX/WebAPI example by Van Kichline
+// Sep - Oct 2015
+// Design:
+//  App gets data from WebAPI.  Data is an array of Items.
+//      Also gets user and list from cookies.
+//  App creates a MainFrame and passes it only the data for the selected user and list.
+//  MainFrame creates Selectors, ItemList and Operators
+//  Selectors selects a list or adds a new one
+//  ItemList displays items for current user and list.  It also deletes items.
+//  Operators adds an item, hides all checked items, or deletes all checked items.
+//  Item renders a single item a a tr
+//  DropDown renders a select element with contents and selection.
+
 var Dropdown = React.createClass({displayName: "Dropdown",
     propTypes: {
-        list: React.PropTypes.array.isRequired,
+        list:      React.PropTypes.array.isRequired,
         selection: React.PropTypes.string,
-        onChange: React.PropTypes.func.isRequired
-    },
-    getInitialState: function () {
-        return { sel: this.props.selection };
+        onChange:  React.PropTypes.func.isRequired
     },
     handleChange: function (evt) {
         this.setState({ sel: evt.target.value })
         this.props.onChange(evt);
     },
     render: function () {
-        return (React.createElement("select", {className: "form-control", value: this.state.sel, onChange: this.handleChange}, 
-            this.renderListItems()
-        ));
+        return (
+            React.createElement("select", {className: "form-control", value: this.props.selection, onChange: this.handleChange}, 
+                this.renderListItems()
+            )
+        );
     },
     renderListItems: function () {
         var items = [];
@@ -26,114 +38,66 @@ var Dropdown = React.createClass({displayName: "Dropdown",
 });
 
 
-    var Item = React.createClass({displayName: "Item",
-        propTypes: {
-            item: React.PropTypes.object.isRequired,
-            onChange: React.PropTypes.func.isRequired
-        },
-        getInitialState: function () {
-            return { isDone: this.props.item.Done };
-        },
-        handleChange: function (evt) {
-            var done = !this.state.isDone;
-            this.setState({ isDone: done });
-            this.props.onChange(this.props.item, done);
-        },
-        render: function () {
-            var isDone = this.state.isDone;
-            return (
+var Item = React.createClass({displayName: "Item",
+    propTypes: {
+        item:     React.PropTypes.object.isRequired,
+        onChange: React.PropTypes.func.isRequired,
+        onDelete: React.PropTypes.func.isRequired
+    },
+    getInitialState: function () {
+        return { isDone: this.props.item.Done };
+    },
+    handleChange: function (evt) {
+        var done = !this.state.isDone;
+        this.setState({ isDone: done });
+        this.props.onChange(this.props.item, done);
+    },
+    handleDelete: function () {
+        this.props.onDelete(this.props.item);
+    },
+    render: function () {
+        var isDone = this.state.isDone;
+        return (
             React.createElement("tr", null, 
                 React.createElement("td", {className: "cbTD"}, React.createElement("input", {type: "checkbox", checked: isDone, onChange: this.handleChange})), 
                 React.createElement("td", null, this.props.item.ItemText), 
-                React.createElement("td", null, React.createElement("span", {className: "glyphicon glyphicon-remove-sign"}))
+                React.createElement("td", null, React.createElement("span", {className: "glyphicon glyphicon-remove-sign", onClick: this.handleDelete}))
             )
         );
-        }
-    });
+    }
+});
 
 
-var MainPane = React.createClass({displayName: "MainPane",
+var Selectors = React.createClass({displayName: "Selectors",
     propTypes: {
-        data: React.PropTypes.array.isRequired,
-        defaultUser: React.PropTypes.string,
-        defaultList: React.PropTypes.string
-    },
-    getInitialState: function () {
-        return { user: this.props.defaultUser, list: this.props.defaultList };
+        users:       React.PropTypes.array,
+        lists:       React.PropTypes.array,
+        user:        React.PropTypes.string,
+        list:        React.PropTypes.string,
+        userChanged: React.PropTypes.func.isRequired,
+        listChanged: React.PropTypes.func.isRequired
     },
     userChanged: function (evt) {
-        this.setState({ user: evt.target.value });
-        setCookie("defaultUser", evt.target.value, 30);
-        this.setState({ list: "" });    // An appropriate default will be selected automatically.
-        setCookie("defaultList", "", 0);
+        this.props.userChanged(evt.target.value);
     },
     listChanged: function (evt) {
-        setCookie("defaultList", evt.target.value, 30);
-        this.setState({ list: evt.target.value });
-    },
-    addUser: function () {
-        alert("TBD: Add User");
-    },
-    addList: function () {
-        var user = this.getUser();
-        alert("TBD: Add list for user " + user);
-    },
-    getUser: function () {
-        var selUser = this.state.user || getDefaultUser(this.props.data);
-        return selUser;
-    },
-    getList: function (user) {
-        var selList = this.state.list || getDefaultList(this.props.data, user);
-        return selList;
-    },
-    toggleHide: function () {
-        this.setState({ hideCompleted: !this.state.hideCompleted });
-    },
-    itemChanged: function (item, state) {
-        console.log(item.ListName + "/" + item.ItemText + "->" + state);
+        this.props.listChanged(evt.target.value);
     },
     render: function () {
-        var user = this.getUser();
-        var list = this.getList(user);
-        var that = this;
-        var todoList = this.props.data.map(function (item) {
-            if (item.UserName == user && item.ListName == list) {
-                return React.createElement(Item, {item: item, key: item.id, onChange: that.itemChanged});
-            }
-        });
         return (
-            React.createElement("div", null, 
-                React.createElement("div", {className: "row"}, 
-                    React.createElement("form", {className: "form-inline selectLine", role: "form"}, 
-                        React.createElement("div", {className: "form-group"}, 
-                            React.createElement(Dropdown, {list: extractUsers(this.props.data), selection: this.state.user, onChange: this.userChanged}), 
-                            React.createElement("button", {className: "btn btn-default", onClick: this.addUser}, 
-                                React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
-                            )
-                        ), 
-                        React.createElement("div", {className: "form-group"}, 
-                            React.createElement(Dropdown, {list: extractLists(this.props.data, user), selection: this.state.list, onChange: this.listChanged}), 
-                            React.createElement("button", {className: "btn btn-default", onClick: this.addList}, 
-                                React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
-                            )
+            React.createElement("div", {className: "row"}, 
+                React.createElement("form", {className: "form-inline selectLine", role: "form"}, 
+                    React.createElement("div", {className: "form-group"}, 
+                        React.createElement(Dropdown, {list: this.props.users, selection: this.props.user, onChange: this.userChanged}), 
+                        React.createElement("button", {className: "btn btn-default", onClick: this.addUser}, 
+                            React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                         )
-                    )
-                ), 
-                React.createElement("div", {className: "row"}, 
-                    React.createElement("table", {className: "todoTable"}, 
-                        todoList
-                    )
-                ), 
-                React.createElement("hr", null), 
-                React.createElement("div", {className: "row"}, 
-                    React.createElement("button", {className: "btn btn-default button-spacing"}, 
-                        React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                     ), 
-                    React.createElement("button", {className: "btn btn-default button-spacing"}, 
-                        React.createElement("span", {className: "glyphicon glyphicon-remove-sign"}), " Checked"
-                    ), 
-                    React.createElement("button", {className: "btn btn-default"}, 
-                        "Hide ", React.createElement("span", {className: "glyphicon glyphicon-ok-sign"})
+                    React.createElement("div", {className: "form-group"}, 
+                        React.createElement(Dropdown, {list: this.props.lists, selection: this.props.list, onChange: this.listChanged}), 
+                        React.createElement("button", {className: "btn btn-default", onClick: this.addList}, 
+                            React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
+                        )
                     )
                 )
             )
@@ -142,12 +106,110 @@ var MainPane = React.createClass({displayName: "MainPane",
 });
 
 
+var ItemList = React.createClass({displayName: "ItemList",
+    propTypes: {
+        data: React.PropTypes.array.isRequired,
+        onChange: React.PropTypes.func.isRequired,
+        onDelete: React.PropTypes.func.isRequired
+    },
+    itemChanged: function () {
+        this.props.onChange(item);
+    },
+    onDelete: function () {
+        this.props.onDelete(item);
+    },
+    render: function () {
+        var that = this;
+        var todoList = this.props.data.map(function (item) {
+            if (item) {
+                return React.createElement(Item, {item: item, key: item.id, onChange: that.itemChanged, onDelete: that.onDelete});
+            }
+        });
+        return (
+            React.createElement("div", {className: "row"}, 
+                React.createElement("table", {className: "todoTable"}, 
+                    todoList
+                )
+            )
+        );
+    }
+});
+
+
+// TODO: None of these operations is implemented yet
+var Operators = React.createClass({displayName: "Operators",
+    render: function () {
+        return (
+            React.createElement("div", {className: "row"}, 
+                React.createElement("button", {className: "btn btn-default button-spacing"}, 
+                    React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
+                ), 
+                React.createElement("button", {className: "btn btn-default button-spacing"}, 
+                    React.createElement("span", {className: "glyphicon glyphicon-remove-sign"}), " Checked"
+                ), 
+                React.createElement("button", {className: "btn btn-default"}, 
+                    "Hide ", React.createElement("span", {className: "glyphicon glyphicon-ok-sign"})
+                )
+            )
+        );
+    }
+});
+
+
+var MainPane = React.createClass({displayName: "MainPane",
+    propTypes: {
+        data:        React.PropTypes.array.isRequired,
+        users:       React.PropTypes.array,
+        lists:       React.PropTypes.array,
+        user:        React.PropTypes.string,
+        list:        React.PropTypes.string,
+        userChanged: React.PropTypes.func.isRequired,
+        listChanged: React.PropTypes.func.isRequired
+    },
+    getInitialState: function () {
+        return { user: this.props.user, list: this.props.list };
+    },
+    addUser: function () {
+        alert("TBD: Add User");
+    },
+    addList: function () {
+        var user = this.getUser();
+        alert("TBD: Add list for user " + user);    // TODO
+    },
+    itemChanged: function (item, state) {
+        console.log(item.ListName + "/" + item.ItemText + "->" + state);    // TODO
+    },
+    itemDeleted: function (item) {
+        console.log(item.ListName + "/" + item.ItemText + " Deleted");  //TODO
+    },
+    userChanged: function (user) { this.props.userChanged(user); },
+    listChanged: function (list) { this.props.listChanged(list); },
+    render: function () {
+        return (
+            React.createElement("div", null, 
+                React.createElement(Selectors, {users: this.props.users, 
+                           lists: this.props.lists, 
+                           user: this.props.user, 
+                           list: this.props.list, 
+                           userChanged: this.props.userChanged, 
+                           listChanged: this.props.listChanged}
+                ), 
+                React.createElement(ItemList, {data: this.props.data, 
+                           onChange: this.itemChanged, 
+                           onDelete: this.itemDeleted}
+                ), 
+                React.createElement("hr", null), 
+                React.createElement(Operators, null)
+            )
+        );
+    }
+});
+
+
 var App = React.createClass({displayName: "App",
     getInitialState: function () {
-        return { data: [] };
-    },
-    getDefaultProps: function () {
         return {
+            data: [],
             user: getCookie('defaultUser'),
             list: getCookie('defaultList')
         };
@@ -158,16 +220,51 @@ var App = React.createClass({displayName: "App",
         xhr.onload = function () {
             var webAPIData = JSON.parse(xhr.responseText);
             this.setState({ data: webAPIData });
+            var user = this.getUser();
+            this.setState({ user: user, list: this.getList(user) });
         }.bind(this);
         xhr.send();
     },
+    getUser: function () {
+        var selUser = this.state.user || getDefaultUser(this.state.data);
+        return selUser;
+    },
+    getList: function (user) {
+        var selList = this.state.list || getDefaultList(this.state.data, user);
+        return selList;
+    },
+    userChanged: function (user) {
+        list = getDefaultList(this.state.data, user);
+        setCookie("defaultUser", user, 30);
+        setCookie("defaultList", list, 0);
+        this.setState({ user: user, list: list });
+    },
+    listChanged: function (list) {
+        this.setState({ list: list });
+        setCookie("defaultList", list, 30);
+    },
     render: function () {
+        var user = this.getUser();
+        var list = this.getList(user);
+        var that = this;
+        var todoList = this.state.data.map(function (item) {
+            if (item && item.UserName == that.state.user && item.ListName == that.state.list) {
+                return item;
+            }
+        });
         return (
             React.createElement("div", {className: "container"}, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("h1", null, "Todo List")
                 ), 
-                React.createElement(MainPane, {data: this.state.data, defaultUser: this.props.user, defaultList: this.props.list})
+                React.createElement(MainPane, {data: todoList, 
+                          lists: extractLists(this.state.data, this.state.user), 
+                          users: extractUsers(this.state.data), 
+                          user: this.state.user, 
+                          list: this.state.list, 
+                          userChanged: this.userChanged, 
+                          listChanged: this.listChanged}
+                )
             )
         );
     }
