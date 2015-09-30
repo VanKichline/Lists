@@ -15,6 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  Dropdown Class
@@ -185,19 +186,10 @@ var MainPane = React.createClass({displayName: "MainPane",
         userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
         listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
-    addUser: function () {
-        alert("TBD: Add User");
-    },
-    addList: function () {
-        var user = this.getUser();
-        alert("TBD: Add list for user " + user);    // TODO
-    },
-    itemChanged: function (item, state) {
-        console.log(item.ListName + "/" + item.ItemText + "->" + state);    // TODO
-    },
-    itemDeleted: function (item) {
-        console.log(item.ListName + "/" + item.ItemText + " Deleted");  //TODO
-    },
+    addUser: function () { alert("TBD: Add User"); },
+    addList: function () { console.log("TBD: Add list for user " + this.getUser()); },
+    itemChanged: function (item, state) { console.log("TBD: " + item.ListName + "/" + item.ItemText + "->" + state); },
+    itemDeleted: function (item) { console.log("TBD: " + item.ListName + "/" + item.ItemText + " Deleted"); },
     userChanged: function (user) { this.props.userInfo.onChange(user); },
     listChanged: function (list) { this.props.listInfo.onChange(list); },
     render: function () {
@@ -226,8 +218,8 @@ var App = React.createClass({displayName: "App",
     getInitialState: function () {
         return {
             data: [],
-            user: getCookie('defaultUser'),
-            list: getCookie('defaultList')
+            user: CookieHandler.getCookie('defaultUser'),
+            list: CookieHandler.getCookie('defaultList')
         };
     },
     componentWillMount: function () {
@@ -241,23 +233,25 @@ var App = React.createClass({displayName: "App",
         }.bind(this);
         xhr.send();
     },
+    dataLoaded: function (data) {
+    },
     getUser: function () {
-        var selUser = this.state.user || getDefaultUser(this.state.data);
+        var selUser = this.state.user || DataHandler.getDefaultUser(this.state.data);
         return selUser;
     },
     getList: function (user) {
-        var selList = this.state.list || getDefaultList(this.state.data, user);
+        var selList = this.state.list || DataHandler.getDefaultList(this.state.data, user);
         return selList;
     },
     userChanged: function (user) {
-        list = getDefaultList(this.state.data, user);
-        setCookie("defaultUser", user, 30);
-        setCookie("defaultList", list, 0);
+        var list = DataHandler.getDefaultList(this.state.data, user);
+        CookieHandler.setCookie("defaultUser", user, 30);
+        CookieHandler.setCookie("defaultList", list, 0);
         this.setState({ user: user, list: list });
     },
     listChanged: function (list) {
         this.setState({ list: list });
-        setCookie("defaultList", list, 30);
+        CookieHandler.setCookie("defaultList", list, 30);
     },
     render: function () {
         var user = this.getUser();
@@ -269,14 +263,14 @@ var App = React.createClass({displayName: "App",
             }
         });
         var userInfo = {
-            list      : extractUsers(this.state.data),
+            list      : DataHandler.extractUsers(this.state.data),
             selection : this.state.user,
             onChange  : this.userChanged
         }
         var listInfo = {
-            list      : extractLists(this.state.data, this.state.user),
+            list      : DataHandler.extractLists(this.state.data, this.state.user),
             selection : this.state.list,
-            onChange : this.listChanged
+            onChange  : this.listChanged
         };
         return (
             React.createElement("div", {className: "container"}, 
@@ -294,89 +288,3 @@ var App = React.createClass({displayName: "App",
 
 
 React.render(React.createElement(App, {url: "/api/items/"}), document.getElementById('content'));
-
-
-// #region Utility Functions
-
-function extractUsersAndLists(data) {
-    var uAndL = {};
-    data.map(function (item) {
-        if (undefined == uAndL[item.UserName]) {
-            uAndL[item.UserName] = [item.ListName];
-        } else {
-            if ($.inArray(item.ListName, uAndL[item.UserName]) < 0) {
-                uAndL[item.UserName].push(item.ListName);
-            }
-        }
-    });
-    return uAndL;
-}
-
-function extractUsers(data) {
-    var users = [];
-    var uAndL = extractUsersAndLists(data);
-    for (user in uAndL) {
-        users.push(user);
-    }
-    return users;
-}
-
-function extractLists(data, user) {
-    var lists = [];
-    if (user) {
-        var userLists = extractUsersAndLists(data)[user];
-        if (userLists) {
-            userLists.map(function (list) {
-                lists.push(list);
-            });
-        }
-    }
-    return lists;
-}
-
-function getDefaultUser(data) {
-    var selUser = "";
-    if (data && data.length > 0) {
-        var users = extractUsers(data);
-        if (users.length > 0) {
-            selUser = users[0];
-        }
-    }
-    return selUser;
-}
-
-function getDefaultList(data, user) {
-    var selList = "";
-    if (data && data.length > 0) {
-        if (user.length > 0) {
-            var lists = extractLists(data, user);
-            if (lists.length > 0) {
-                selList = lists[0];
-            }
-        }
-    }
-    return selList;
-}
-
-// Cookie functions: http://www.w3schools.com/js/js_cookies.asp
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + "; " + expires;
-}
-
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ')
-            c = c.substring(1);
-        if (c.indexOf(name) == 0)
-            return c.substring(name.length, c.length);
-    }
-    return "";
-}
-
-// #endregion
