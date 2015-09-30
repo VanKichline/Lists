@@ -1,5 +1,6 @@
-// Lists, a JSX/WebAPI example by Van Kichline
-// Sep - Oct 2015
+////////////////////////////////////////////////////////////////////////////////
+//
+// Lists, a JSX/WebAPI example by Van Kichline: Sep - Oct 2015
 // Design:
 //  App gets data from WebAPI.  Data is an array of Items.
 //      Also gets user and list from cookies.
@@ -10,27 +11,32 @@
 //  Operators adds an item, hides all checked items, or deletes all checked items.
 //  Item renders a single item a a tr
 //  DropDown renders a select element with contents and selection.
+//
+////////////////////////////////////////////////////////////////////////////////
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Dropdown Class
+//
 var Dropdown = React.createClass({displayName: "Dropdown",
     propTypes: {
-        list:      React.PropTypes.array.isRequired,
-        selection: React.PropTypes.string,
-        onChange:  React.PropTypes.func.isRequired
+        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     handleChange: function (evt) {
         this.setState({ sel: evt.target.value })
-        this.props.onChange(evt);
+        this.props.listInfo.onChange(evt);
     },
     render: function () {
         return (
-            React.createElement("select", {className: "form-control", value: this.props.selection, onChange: this.handleChange}, 
+            React.createElement("select", {className: "form-control", value: this.props.listInfo.selection, onChange: this.handleChange}, 
                 this.renderListItems()
             )
         );
     },
     renderListItems: function () {
         var items = [];
-        this.props.list.map(function (item) {
+        this.props.listInfo.list.map(function (item) {
             items.push(React.createElement("option", {key: item}, item));
         });
         return items;
@@ -38,6 +44,10 @@ var Dropdown = React.createClass({displayName: "Dropdown",
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Item Class
+//
 var Item = React.createClass({displayName: "Item",
     propTypes: {
         item:     React.PropTypes.object.isRequired,
@@ -68,33 +78,35 @@ var Item = React.createClass({displayName: "Item",
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Selectors Class
+//
 var Selectors = React.createClass({displayName: "Selectors",
     propTypes: {
-        users:       React.PropTypes.array,
-        lists:       React.PropTypes.array,
-        user:        React.PropTypes.string,
-        list:        React.PropTypes.string,
-        userChanged: React.PropTypes.func.isRequired,
-        listChanged: React.PropTypes.func.isRequired
+        userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
+        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     userChanged: function (evt) {
-        this.props.userChanged(evt.target.value);
+        this.props.userInfo.onChange(evt.target.value);
     },
     listChanged: function (evt) {
-        this.props.listChanged(evt.target.value);
+        this.props.listInfo.onChange(evt.target.value);
     },
     render: function () {
+        var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
+        var listInfo = { list: this.props.listInfo.list, selection: this.props.listInfo.selection, onChange: this.listChanged };
         return (
             React.createElement("div", {className: "row"}, 
                 React.createElement("form", {className: "form-inline selectLine", role: "form"}, 
                     React.createElement("div", {className: "form-group"}, 
-                        React.createElement(Dropdown, {list: this.props.users, selection: this.props.user, onChange: this.userChanged}), 
+                        React.createElement(Dropdown, {listInfo: userInfo}), 
                         React.createElement("button", {className: "btn btn-default", onClick: this.addUser}, 
                             React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                         )
                     ), 
                     React.createElement("div", {className: "form-group"}, 
-                        React.createElement(Dropdown, {list: this.props.lists, selection: this.props.list, onChange: this.listChanged}), 
+                        React.createElement(Dropdown, {listInfo: listInfo}), 
                         React.createElement("button", {className: "btn btn-default", onClick: this.addList}, 
                             React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                         )
@@ -106,6 +118,10 @@ var Selectors = React.createClass({displayName: "Selectors",
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  ItemList Class
+//
 var ItemList = React.createClass({displayName: "ItemList",
     propTypes: {
         data: React.PropTypes.array.isRequired,
@@ -136,7 +152,10 @@ var ItemList = React.createClass({displayName: "ItemList",
 });
 
 
-// TODO: None of these operations is implemented yet
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Operators Class
+//
 var Operators = React.createClass({displayName: "Operators",
     render: function () {
         return (
@@ -156,18 +175,15 @@ var Operators = React.createClass({displayName: "Operators",
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MainPane Class
+//
 var MainPane = React.createClass({displayName: "MainPane",
     propTypes: {
-        data:        React.PropTypes.array.isRequired,
-        users:       React.PropTypes.array,
-        lists:       React.PropTypes.array,
-        user:        React.PropTypes.string,
-        list:        React.PropTypes.string,
-        userChanged: React.PropTypes.func.isRequired,
-        listChanged: React.PropTypes.func.isRequired
-    },
-    getInitialState: function () {
-        return { user: this.props.user, list: this.props.list };
+        data:     React.PropTypes.array.isRequired,     // List items for this user/list selection
+        userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
+        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     addUser: function () {
         alert("TBD: Add User");
@@ -182,17 +198,13 @@ var MainPane = React.createClass({displayName: "MainPane",
     itemDeleted: function (item) {
         console.log(item.ListName + "/" + item.ItemText + " Deleted");  //TODO
     },
-    userChanged: function (user) { this.props.userChanged(user); },
-    listChanged: function (list) { this.props.listChanged(list); },
+    userChanged: function (user) { this.props.userInfo.onChange(user); },
+    listChanged: function (list) { this.props.listInfo.onChange(list); },
     render: function () {
         return (
             React.createElement("div", null, 
-                React.createElement(Selectors, {users: this.props.users, 
-                           lists: this.props.lists, 
-                           user: this.props.user, 
-                           list: this.props.list, 
-                           userChanged: this.props.userChanged, 
-                           listChanged: this.props.listChanged}
+                React.createElement(Selectors, {userInfo: this.props.userInfo, 
+                           listInfo: this.props.listInfo}
                 ), 
                 React.createElement(ItemList, {data: this.props.data, 
                            onChange: this.itemChanged, 
@@ -206,6 +218,10 @@ var MainPane = React.createClass({displayName: "MainPane",
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  App Class
+//
 var App = React.createClass({displayName: "App",
     getInitialState: function () {
         return {
@@ -252,18 +268,24 @@ var App = React.createClass({displayName: "App",
                 return item;
             }
         });
+        var userInfo = {
+            list      : extractUsers(this.state.data),
+            selection : this.state.user,
+            onChange  : this.userChanged
+        }
+        var listInfo = {
+            list      : extractLists(this.state.data, this.state.user),
+            selection : this.state.list,
+            onChange : this.listChanged
+        };
         return (
             React.createElement("div", {className: "container"}, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("h1", null, "Todo List")
                 ), 
                 React.createElement(MainPane, {data: todoList, 
-                          lists: extractLists(this.state.data, this.state.user), 
-                          users: extractUsers(this.state.data), 
-                          user: this.state.user, 
-                          list: this.state.list, 
-                          userChanged: this.userChanged, 
-                          listChanged: this.listChanged}
+                          listInfo: listInfo, 
+                          userInfo: userInfo}
                 )
             )
         );

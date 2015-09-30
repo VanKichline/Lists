@@ -1,5 +1,6 @@
-﻿// Lists, a JSX/WebAPI example by Van Kichline
-// Sep - Oct 2015
+﻿////////////////////////////////////////////////////////////////////////////////
+//
+// Lists, a JSX/WebAPI example by Van Kichline: Sep - Oct 2015
 // Design:
 //  App gets data from WebAPI.  Data is an array of Items.
 //      Also gets user and list from cookies.
@@ -10,27 +11,32 @@
 //  Operators adds an item, hides all checked items, or deletes all checked items.
 //  Item renders a single item a a tr
 //  DropDown renders a select element with contents and selection.
+//
+////////////////////////////////////////////////////////////////////////////////
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Dropdown Class
+//
 var Dropdown = React.createClass({
     propTypes: {
-        list:      React.PropTypes.array.isRequired,
-        selection: React.PropTypes.string,
-        onChange:  React.PropTypes.func.isRequired
+        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     handleChange: function (evt) {
         this.setState({ sel: evt.target.value })
-        this.props.onChange(evt);
+        this.props.listInfo.onChange(evt);
     },
     render: function () {
         return (
-            <select className="form-control" value={this.props.selection} onChange={this.handleChange}>
+            <select className="form-control" value={this.props.listInfo.selection} onChange={this.handleChange}>
                 {this.renderListItems()}
             </select>
         );
     },
     renderListItems: function () {
         var items = [];
-        this.props.list.map(function (item) {
+        this.props.listInfo.list.map(function (item) {
             items.push(<option key={item}>{item}</option>);
         });
         return items;
@@ -38,6 +44,10 @@ var Dropdown = React.createClass({
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Item Class
+//
 var Item = React.createClass({
     propTypes: {
         item:     React.PropTypes.object.isRequired,
@@ -68,33 +78,35 @@ var Item = React.createClass({
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Selectors Class
+//
 var Selectors = React.createClass({
     propTypes: {
-        users:       React.PropTypes.array,
-        lists:       React.PropTypes.array,
-        user:        React.PropTypes.string,
-        list:        React.PropTypes.string,
-        userChanged: React.PropTypes.func.isRequired,
-        listChanged: React.PropTypes.func.isRequired
+        userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
+        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     userChanged: function (evt) {
-        this.props.userChanged(evt.target.value);
+        this.props.userInfo.onChange(evt.target.value);
     },
     listChanged: function (evt) {
-        this.props.listChanged(evt.target.value);
+        this.props.listInfo.onChange(evt.target.value);
     },
     render: function () {
+        var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
+        var listInfo = { list: this.props.listInfo.list, selection: this.props.listInfo.selection, onChange: this.listChanged };
         return (
             <div className="row">
                 <form className="form-inline selectLine" role="form">
                     <div className="form-group">
-                        <Dropdown list={this.props.users} selection={this.props.user} onChange={this.userChanged} />
+                        <Dropdown listInfo={userInfo} />
                         <button className="btn btn-default" onClick={this.addUser}>
                             <span className="glyphicon glyphicon-plus-sign" />
                         </button>
                     </div>
                     <div className="form-group">
-                        <Dropdown list={this.props.lists} selection={this.props.list} onChange={this.listChanged} />
+                        <Dropdown listInfo={listInfo} />
                         <button className="btn btn-default" onClick={this.addList}>
                             <span className="glyphicon glyphicon-plus-sign" />
                         </button>
@@ -106,6 +118,10 @@ var Selectors = React.createClass({
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  ItemList Class
+//
 var ItemList = React.createClass({
     propTypes: {
         data: React.PropTypes.array.isRequired,
@@ -136,7 +152,10 @@ var ItemList = React.createClass({
 });
 
 
-// TODO: None of these operations is implemented yet
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Operators Class
+//
 var Operators = React.createClass({
     render: function () {
         return (
@@ -156,18 +175,15 @@ var Operators = React.createClass({
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MainPane Class
+//
 var MainPane = React.createClass({
     propTypes: {
-        data:        React.PropTypes.array.isRequired,
-        users:       React.PropTypes.array,
-        lists:       React.PropTypes.array,
-        user:        React.PropTypes.string,
-        list:        React.PropTypes.string,
-        userChanged: React.PropTypes.func.isRequired,
-        listChanged: React.PropTypes.func.isRequired
-    },
-    getInitialState: function () {
-        return { user: this.props.user, list: this.props.list };
+        data:     React.PropTypes.array.isRequired,     // List items for this user/list selection
+        userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
+        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     addUser: function () {
         alert("TBD: Add User");
@@ -182,21 +198,17 @@ var MainPane = React.createClass({
     itemDeleted: function (item) {
         console.log(item.ListName + "/" + item.ItemText + " Deleted");  //TODO
     },
-    userChanged: function (user) { this.props.userChanged(user); },
-    listChanged: function (list) { this.props.listChanged(list); },
+    userChanged: function (user) { this.props.userInfo.onChange(user); },
+    listChanged: function (list) { this.props.listInfo.onChange(list); },
     render: function () {
         return (
             <div>
-                <Selectors users       = {this.props.users}
-                           lists       = {this.props.lists}
-                           user        = {this.props.user}
-                           list        = {this.props.list}
-                           userChanged = {this.props.userChanged}
-                           listChanged = {this.props.listChanged}
+                <Selectors userInfo = {this.props.userInfo}
+                           listInfo = {this.props.listInfo}
                 />
-                <ItemList  data        = {this.props.data}
-                           onChange    = {this.itemChanged}
-                           onDelete    = {this.itemDeleted}
+                <ItemList  data     = {this.props.data}
+                           onChange = {this.itemChanged}
+                           onDelete = {this.itemDeleted}
                 />
                 <hr />
                 <Operators />
@@ -206,6 +218,10 @@ var MainPane = React.createClass({
 });
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//  App Class
+//
 var App = React.createClass({
     getInitialState: function () {
         return {
@@ -252,18 +268,24 @@ var App = React.createClass({
                 return item;
             }
         });
+        var userInfo = {
+            list      : extractUsers(this.state.data),
+            selection : this.state.user,
+            onChange  : this.userChanged
+        }
+        var listInfo = {
+            list      : extractLists(this.state.data, this.state.user),
+            selection : this.state.list,
+            onChange : this.listChanged
+        };
         return (
             <div className="container">
                 <div className="row">
                     <h1>Todo List</h1>
                 </div>
-                <MainPane data        = {todoList}
-                          lists       = {extractLists(this.state.data, this.state.user)}
-                          users       = {extractUsers(this.state.data)}
-                          user        = {this.state.user}
-                          list        = {this.state.list}
-                          userChanged = {this.userChanged}
-                          listChanged = {this.listChanged}
+                <MainPane data     = {todoList}
+                          listInfo = {listInfo}
+                          userInfo = {userInfo}
                 />
             </div>
         );
