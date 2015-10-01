@@ -1,5 +1,14 @@
-﻿define (function () {
+﻿define(function () {
     return {
+        requestData: function (url, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('get', url, true);
+            xhr.onload = function () {
+                var webAPIData = JSON.parse(xhr.responseText);
+                callback(webAPIData);
+            }.bind(this);
+            xhr.send();
+        },
         extractUsersAndLists: function (data) {
             var uAndL = {};
             data.map(function (item) {

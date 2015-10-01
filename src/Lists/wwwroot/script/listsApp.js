@@ -228,15 +228,12 @@ var App = React.createClass({displayName: "App",
         };
     },
     componentWillMount: function () {
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', this.props.url, true);
-        xhr.onload = function () {
-            var webAPIData = JSON.parse(xhr.responseText);
-            this.setState({ data: webAPIData });
-            var user = this.getUser();
-            this.setState({ user: user, list: this.getList(user) });
-        }.bind(this);
-        xhr.send();
+        DataLib.requestData(this.props.url, this.requestDataCallback);
+    },
+    requestDataCallback: function (data) {
+        this.setState({ data: data });
+        var user = this.getUser();
+        this.setState({ user: user, list: this.getList(user) });
     },
     getUser: function () {
         var selUser = this.state.user || DataLib.getDefaultUser(this.state.data);
