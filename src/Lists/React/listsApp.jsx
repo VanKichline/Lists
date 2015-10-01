@@ -35,7 +35,7 @@ var Dropdown = React.createClass({
     },
     render: function () {
         return (
-            <select className="form-control" value={this.props.listInfo.selection} onChange={this.handleChange}>
+            <select className="form-control btn-invisible" value={this.props.listInfo.selection} onChange={this.handleChange}>
                 {this.renderListItems()}
             </select>
         );
@@ -46,6 +46,48 @@ var Dropdown = React.createClass({
             items.push(<option key={item}>{item}</option>);
         });
         return items;
+    }
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Selectors Class
+//
+var Selectors = React.createClass({
+    propTypes: {
+        userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
+        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
+    },
+    userChanged: function (evt) {
+        this.props.userInfo.onChange(evt.target.value);
+    },
+    listChanged: function (evt) {
+        this.props.listInfo.onChange(evt.target.value);
+    },
+    render: function () {
+        var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
+        var listInfo = { list: this.props.listInfo.list, selection: this.props.listInfo.selection, onChange: this.listChanged };
+        return (
+            <div className="row">
+                <form className="form-inline selectLine" role="form">
+                    <div className="form-group">
+                        <label htmlFor="ddl1" className="ddl-label">User:</label>
+                        <Dropdown id="ddl1" listInfo={userInfo } />
+                        <button className="btn btn-default  btn-invisible" onClick={this.addUser}>
+                            <span className="glyphicon glyphicon-plus-sign" />
+                        </button>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="ddl2" className="ddl-label">List:</label>
+                        <Dropdown id="ddl2" listInfo={listInfo } />
+                        <button className="btn btn-default  btn-invisible" onClick={this.addList}>
+                            <span className="glyphicon glyphicon-plus-sign" />
+                        </button>
+                    </div>
+                </form>
+            </div>
+        );
     }
 });
 
@@ -77,48 +119,8 @@ var Item = React.createClass({
             <tr>
                 <td className="cbTD"><input type="checkbox" checked={isDone} onChange={this.handleChange} /></td>
                 <td>{this.props.item.ItemText}</td>
-                <td><span className="glyphicon glyphicon-remove-sign" onClick={this.handleDelete}></span></td>
+                <td className="cbTD"><button className="btn btn-default btn-sm btn-invisible"><span className="glyphicon glyphicon-remove-sign" onClick={this.handleDelete}></span></button></td>
             </tr>
-        );
-    }
-});
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//  Selectors Class
-//
-var Selectors = React.createClass({
-    propTypes: {
-        userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
-        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
-    },
-    userChanged: function (evt) {
-        this.props.userInfo.onChange(evt.target.value);
-    },
-    listChanged: function (evt) {
-        this.props.listInfo.onChange(evt.target.value);
-    },
-    render: function () {
-        var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
-        var listInfo = { list: this.props.listInfo.list, selection: this.props.listInfo.selection, onChange: this.listChanged };
-        return (
-            <div className="row">
-                <form className="form-inline selectLine" role="form">
-                    <div className="form-group">
-                        <Dropdown listInfo={userInfo} />
-                        <button className="btn btn-default" onClick={this.addUser}>
-                            <span className="glyphicon glyphicon-plus-sign" />
-                        </button>
-                    </div>
-                    <div className="form-group">
-                        <Dropdown listInfo={listInfo} />
-                        <button className="btn btn-default" onClick={this.addList}>
-                            <span className="glyphicon glyphicon-plus-sign" />
-                        </button>
-                    </div>
-                </form>
-            </div>
         );
     }
 });
@@ -165,13 +167,13 @@ var Operators = React.createClass({
     render: function () {
         return (
             <div className="row">
-                <button className="btn btn-default button-spacing">
+                <button className="btn btn-default btn-invisible button-inset button-spacing">
                     <span className="glyphicon glyphicon-plus-sign" />
                 </button>
-                <button className="btn btn-default button-spacing">
+                <button className="btn btn-default btn-invisible button-spacing">
                     <span className="glyphicon glyphicon-remove-sign" /> Checked
                 </button>
-                <button className="btn btn-default">
+                <button className="btn btn-default btn-invisible">
                     Hide <span className="glyphicon glyphicon-ok-sign" />
                 </button>
             </div>
@@ -190,7 +192,7 @@ var MainPane = React.createClass({
         userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
         listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
-    addUser: function () { alert("TBD: Add User"); },
+    addUser: function () { console.log("TBD: Add User"); },
     addList: function () { console.log("TBD: Add list"); },
     itemChanged: function (item, state) { console.log("TBD: " + item.ListName + "/" + item.ItemText + "->" + state); },
     itemDeleted: function (item) { console.log("TBD: " + item.ListName + "/" + item.ItemText + " Deleted"); },

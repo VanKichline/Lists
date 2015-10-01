@@ -35,7 +35,7 @@ var Dropdown = React.createClass({displayName: "Dropdown",
     },
     render: function () {
         return (
-            React.createElement("select", {className: "form-control", value: this.props.listInfo.selection, onChange: this.handleChange}, 
+            React.createElement("select", {className: "form-control btn-invisible", value: this.props.listInfo.selection, onChange: this.handleChange}, 
                 this.renderListItems()
             )
         );
@@ -46,6 +46,48 @@ var Dropdown = React.createClass({displayName: "Dropdown",
             items.push(React.createElement("option", {key: item}, item));
         });
         return items;
+    }
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Selectors Class
+//
+var Selectors = React.createClass({displayName: "Selectors",
+    propTypes: {
+        userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
+        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
+    },
+    userChanged: function (evt) {
+        this.props.userInfo.onChange(evt.target.value);
+    },
+    listChanged: function (evt) {
+        this.props.listInfo.onChange(evt.target.value);
+    },
+    render: function () {
+        var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
+        var listInfo = { list: this.props.listInfo.list, selection: this.props.listInfo.selection, onChange: this.listChanged };
+        return (
+            React.createElement("div", {className: "row"}, 
+                React.createElement("form", {className: "form-inline selectLine", role: "form"}, 
+                    React.createElement("div", {className: "form-group"}, 
+                        React.createElement("label", {htmlFor: "ddl1", className: "ddl-label"}, "User:"), 
+                        React.createElement(Dropdown, {id: "ddl1", listInfo: userInfo }), 
+                        React.createElement("button", {className: "btn btn-default  btn-invisible", onClick: this.addUser}, 
+                            React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
+                        )
+                    ), 
+                    React.createElement("div", {className: "form-group"}, 
+                        React.createElement("label", {htmlFor: "ddl2", className: "ddl-label"}, "List:"), 
+                        React.createElement(Dropdown, {id: "ddl2", listInfo: listInfo }), 
+                        React.createElement("button", {className: "btn btn-default  btn-invisible", onClick: this.addList}, 
+                            React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
+                        )
+                    )
+                )
+            )
+        );
     }
 });
 
@@ -77,47 +119,7 @@ var Item = React.createClass({displayName: "Item",
             React.createElement("tr", null, 
                 React.createElement("td", {className: "cbTD"}, React.createElement("input", {type: "checkbox", checked: isDone, onChange: this.handleChange})), 
                 React.createElement("td", null, this.props.item.ItemText), 
-                React.createElement("td", null, React.createElement("span", {className: "glyphicon glyphicon-remove-sign", onClick: this.handleDelete}))
-            )
-        );
-    }
-});
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//  Selectors Class
-//
-var Selectors = React.createClass({displayName: "Selectors",
-    propTypes: {
-        userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
-        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
-    },
-    userChanged: function (evt) {
-        this.props.userInfo.onChange(evt.target.value);
-    },
-    listChanged: function (evt) {
-        this.props.listInfo.onChange(evt.target.value);
-    },
-    render: function () {
-        var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
-        var listInfo = { list: this.props.listInfo.list, selection: this.props.listInfo.selection, onChange: this.listChanged };
-        return (
-            React.createElement("div", {className: "row"}, 
-                React.createElement("form", {className: "form-inline selectLine", role: "form"}, 
-                    React.createElement("div", {className: "form-group"}, 
-                        React.createElement(Dropdown, {listInfo: userInfo}), 
-                        React.createElement("button", {className: "btn btn-default", onClick: this.addUser}, 
-                            React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
-                        )
-                    ), 
-                    React.createElement("div", {className: "form-group"}, 
-                        React.createElement(Dropdown, {listInfo: listInfo}), 
-                        React.createElement("button", {className: "btn btn-default", onClick: this.addList}, 
-                            React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
-                        )
-                    )
-                )
+                React.createElement("td", {className: "cbTD"}, React.createElement("button", {className: "btn btn-default btn-sm btn-invisible"}, React.createElement("span", {className: "glyphicon glyphicon-remove-sign", onClick: this.handleDelete})))
             )
         );
     }
@@ -165,13 +167,13 @@ var Operators = React.createClass({displayName: "Operators",
     render: function () {
         return (
             React.createElement("div", {className: "row"}, 
-                React.createElement("button", {className: "btn btn-default button-spacing"}, 
+                React.createElement("button", {className: "btn btn-default btn-invisible button-inset button-spacing"}, 
                     React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                 ), 
-                React.createElement("button", {className: "btn btn-default button-spacing"}, 
+                React.createElement("button", {className: "btn btn-default btn-invisible button-spacing"}, 
                     React.createElement("span", {className: "glyphicon glyphicon-remove-sign"}), " Checked"
                 ), 
-                React.createElement("button", {className: "btn btn-default"}, 
+                React.createElement("button", {className: "btn btn-default btn-invisible"}, 
                     "Hide ", React.createElement("span", {className: "glyphicon glyphicon-ok-sign"})
                 )
             )
@@ -190,7 +192,7 @@ var MainPane = React.createClass({displayName: "MainPane",
         userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
         listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
-    addUser: function () { alert("TBD: Add User"); },
+    addUser: function () { console.log("TBD: Add User"); },
     addList: function () { console.log("TBD: Add list"); },
     itemChanged: function (item, state) { console.log("TBD: " + item.ListName + "/" + item.ItemText + "->" + state); },
     itemDeleted: function (item) { console.log("TBD: " + item.ListName + "/" + item.ItemText + " Deleted"); },

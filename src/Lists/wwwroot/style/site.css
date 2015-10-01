@@ -7,6 +7,13 @@ body {
 .button-spacing {
     margin-right: 2em;
 }
+.button-inset {
+    margin-left: 1em;
+}
+
+.ddl-label {
+    vertical-align: middle;
+}
 
 .todoTable {
     margin-left: 2em;
@@ -28,4 +35,9 @@ body {
 
 .selectLine .form-control {
     margin: .5em .5em 1em .5em;
+}
+
+.btn-invisible {
+    box-shadow: none;
+    border: none;
 }
