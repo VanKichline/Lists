@@ -30,6 +30,7 @@ var Dropdown = React.createClass({
         listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     handleChange: function (evt) {
+        evt.preventDefault();
         this.setState({ sel: evt.target.value })
         this.props.listInfo.onChange(evt);
     },
@@ -64,6 +65,14 @@ var Selectors = React.createClass({
     },
     listChanged: function (evt) {
         this.props.listInfo.onChange(evt.target.value);
+    },
+    addUser: function (evt) {
+        evt.preventDefault();
+        console.log("TBD: Add User.")
+    },
+    addList: function (evt) {
+        evt.preventDefault();
+        console.log("TBD: Add List.")
     },
     render: function () {
         var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
