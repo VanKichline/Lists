@@ -141,12 +141,11 @@ var ItemList = React.createClass({displayName: "ItemList",
         this.props.onDelete(item);
     },
     render: function () {
-        var that = this;
         var todoList = this.props.data.map(function (item) {
             if (item) {
-                return React.createElement(Item, {item: item, key: item.id, onChange: that.itemChanged, onDelete: that.onDelete});
+                return React.createElement(Item, {item: item, key: item.id, onChange: this.itemChanged, onDelete: this.onDelete});
             }
-        });
+        }, this);
         return (
             React.createElement("div", {className: "row"}, 
                 React.createElement("table", {className: "todoTable"}, 
@@ -192,7 +191,7 @@ var MainPane = React.createClass({displayName: "MainPane",
         listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     addUser: function () { alert("TBD: Add User"); },
-    addList: function () { console.log("TBD: Add list for user " + this.getUser()); },
+    addList: function () { console.log("TBD: Add list"); },
     itemChanged: function (item, state) { console.log("TBD: " + item.ListName + "/" + item.ItemText + "->" + state); },
     itemDeleted: function (item) { console.log("TBD: " + item.ListName + "/" + item.ItemText + " Deleted"); },
     userChanged: function (user) { this.props.userInfo.onChange(user); },
@@ -227,21 +226,13 @@ var App = React.createClass({displayName: "App",
             list: CookieLib.getCookie('defaultList')
         };
     },
-    componentWillMount: function () {
-        DataLib.requestData(this.props.url, this.requestDataCallback);
-    },
+    getUser: function () { return this.state.user || DataLib.getDefaultUser(this.state.data); },
+    getList: function (user) { return this.state.list || DataLib.getDefaultList(this.state.data, user); },
+    componentWillMount: function () { DataLib.requestData(this.props.url, this.requestDataCallback); },
     requestDataCallback: function (data) {
         this.setState({ data: data });
         var user = this.getUser();
         this.setState({ user: user, list: this.getList(user) });
-    },
-    getUser: function () {
-        var selUser = this.state.user || DataLib.getDefaultUser(this.state.data);
-        return selUser;
-    },
-    getList: function (user) {
-        var selList = this.state.list || DataLib.getDefaultList(this.state.data, user);
-        return selList;
     },
     userChanged: function (user) {
         var list = DataLib.getDefaultList(this.state.data, user);
@@ -256,12 +247,11 @@ var App = React.createClass({displayName: "App",
     render: function () {
         var user = this.getUser();
         var list = this.getList(user);
-        var that = this;
         var todoList = this.state.data.map(function (item) {
-            if (item && item.UserName == that.state.user && item.ListName == that.state.list) {
+            if (item && item.UserName == this.state.user && item.ListName == this.state.list) {
                 return item;
             }
-        });
+        }, this);
         var userInfo = {
             list      : DataLib.extractUsers(this.state.data),
             selection : this.state.user,
