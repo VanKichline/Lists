@@ -61,18 +61,12 @@ var Selectors = React.createClass({displayName: "Selectors",
         listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     userChanged: function (evt) {
+        evt.preventDefault();
         this.props.userInfo.onChange(evt.target.value);
     },
     listChanged: function (evt) {
+        evt.preventDefault();
         this.props.listInfo.onChange(evt.target.value);
-    },
-    addUser: function (evt) {
-        evt.preventDefault();
-        console.log("TBD: Add User.")
-    },
-    addList: function (evt) {
-        evt.preventDefault();
-        console.log("TBD: Add List.")
     },
     render: function () {
         var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
@@ -83,14 +77,14 @@ var Selectors = React.createClass({displayName: "Selectors",
                     React.createElement("div", {className: "form-group"}, 
                         React.createElement("label", {htmlFor: "ddl1", className: "ddl-label"}, "User:"), 
                         React.createElement(Dropdown, {id: "ddl1", listInfo: userInfo }), 
-                        React.createElement("button", {className: "btn btn-default  btn-invisible", onClick: this.addUser}, 
+                        React.createElement("button", {className: "btn btn-default  btn-invisible", onClick: this.props.userInfo.onAdd}, 
                             React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                         )
                     ), 
                     React.createElement("div", {className: "form-group"}, 
                         React.createElement("label", {htmlFor: "ddl2", className: "ddl-label"}, "List:"), 
                         React.createElement(Dropdown, {id: "ddl2", listInfo: listInfo }), 
-                        React.createElement("button", {className: "btn btn-default  btn-invisible", onClick: this.addList}, 
+                        React.createElement("button", {className: "btn btn-default  btn-invisible", onClick: this.props.listInfo.onAdd}, 
                             React.createElement("span", {className: "glyphicon glyphicon-plus-sign"})
                         )
                     )
@@ -119,7 +113,8 @@ var Item = React.createClass({displayName: "Item",
         this.setState({ isDone: done });
         this.props.onChange(this.props.item, done);
     },
-    handleDelete: function () {
+    handleDelete: function (evt) {
+        evt.preventDefault();
         this.props.onDelete(this.props.item);
     },
     render: function () {
@@ -128,7 +123,7 @@ var Item = React.createClass({displayName: "Item",
             React.createElement("tr", null, 
                 React.createElement("td", {className: "cbTD"}, React.createElement("input", {type: "checkbox", checked: isDone, onChange: this.handleChange})), 
                 React.createElement("td", null, this.props.item.ItemText), 
-                React.createElement("td", {className: "cbTD"}, React.createElement("button", {className: "btn btn-default btn-sm btn-invisible"}, React.createElement("span", {className: "glyphicon glyphicon-remove-sign", onClick: this.handleDelete})))
+                React.createElement("td", {className: "cbTD"}, React.createElement("button", {className: "btn btn-default btn-sm btn-invisible", onClick: this.handleDelete}, React.createElement("span", {className: "glyphicon glyphicon-remove-sign"})))
             )
         );
     }
@@ -145,16 +140,10 @@ var ItemList = React.createClass({displayName: "ItemList",
         onChange: React.PropTypes.func.isRequired,
         onDelete: React.PropTypes.func.isRequired
     },
-    itemChanged: function () {
-        this.props.onChange(item);
-    },
-    onDelete: function () {
-        this.props.onDelete(item);
-    },
     render: function () {
         var todoList = this.props.data.map(function (item) {
             if (item) {
-                return React.createElement(Item, {item: item, key: item.id, onChange: this.itemChanged, onDelete: this.onDelete});
+                return React.createElement(Item, {item: item, key: item.id, onChange: this.props.onChange, onDelete: this.props.onDelete});
             }
         }, this);
         return (
@@ -251,9 +240,17 @@ var App = React.createClass({displayName: "App",
         CookieLib.setCookie("defaultList", list, 0);
         this.setState({ user: user, list: list });
     },
+    userAdded: function (evt) {
+        evt.preventDefault();
+        console.log("TBD: User added.");
+    },
     listChanged: function (list) {
         this.setState({ list: list });
         CookieLib.setCookie("defaultList", list, 30);
+    },
+    listAdded: function (evt) {
+        evt.preventDefault();
+        console.log("TBD: List added.");
     },
     render: function () {
         var user = this.getUser();
@@ -266,12 +263,14 @@ var App = React.createClass({displayName: "App",
         var userInfo = {
             list      : DataLib.extractUsers(this.state.data),
             selection : this.state.user,
-            onChange  : this.userChanged
+            onChange  : this.userChanged,
+            onAdd     : this.userAdded
         }
         var listInfo = {
             list      : DataLib.extractLists(this.state.data, this.state.user),
             selection : this.state.list,
-            onChange  : this.listChanged
+            onChange  : this.listChanged,
+            onAdd     : this.listAdded
         };
         return (
             React.createElement("div", {className: "container"}, 

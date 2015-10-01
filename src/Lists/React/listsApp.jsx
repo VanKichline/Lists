@@ -61,18 +61,12 @@ var Selectors = React.createClass({
         listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
     },
     userChanged: function (evt) {
+        evt.preventDefault();
         this.props.userInfo.onChange(evt.target.value);
     },
     listChanged: function (evt) {
+        evt.preventDefault();
         this.props.listInfo.onChange(evt.target.value);
-    },
-    addUser: function (evt) {
-        evt.preventDefault();
-        console.log("TBD: Add User.")
-    },
-    addList: function (evt) {
-        evt.preventDefault();
-        console.log("TBD: Add List.")
     },
     render: function () {
         var userInfo = { list: this.props.userInfo.list, selection: this.props.userInfo.selection, onChange: this.userChanged };
@@ -83,14 +77,14 @@ var Selectors = React.createClass({
                     <div className="form-group">
                         <label htmlFor="ddl1" className="ddl-label">User:</label>
                         <Dropdown id="ddl1" listInfo={userInfo } />
-                        <button className="btn btn-default  btn-invisible" onClick={this.addUser}>
+                        <button className="btn btn-default  btn-invisible" onClick={this.props.userInfo.onAdd}>
                             <span className="glyphicon glyphicon-plus-sign" />
                         </button>
                     </div>
                     <div className="form-group">
                         <label htmlFor="ddl2" className="ddl-label">List:</label>
                         <Dropdown id="ddl2" listInfo={listInfo } />
-                        <button className="btn btn-default  btn-invisible" onClick={this.addList}>
+                        <button className="btn btn-default  btn-invisible" onClick={this.props.listInfo.onAdd}>
                             <span className="glyphicon glyphicon-plus-sign" />
                         </button>
                     </div>
@@ -119,7 +113,8 @@ var Item = React.createClass({
         this.setState({ isDone: done });
         this.props.onChange(this.props.item, done);
     },
-    handleDelete: function () {
+    handleDelete: function (evt) {
+        evt.preventDefault();
         this.props.onDelete(this.props.item);
     },
     render: function () {
@@ -128,7 +123,7 @@ var Item = React.createClass({
             <tr>
                 <td className="cbTD"><input type="checkbox" checked={isDone} onChange={this.handleChange} /></td>
                 <td>{this.props.item.ItemText}</td>
-                <td className="cbTD"><button className="btn btn-default btn-sm btn-invisible"><span className="glyphicon glyphicon-remove-sign" onClick={this.handleDelete}></span></button></td>
+                <td className="cbTD"><button className="btn btn-default btn-sm btn-invisible" onClick={this.handleDelete}><span className="glyphicon glyphicon-remove-sign"></span></button></td>
             </tr>
         );
     }
@@ -145,16 +140,10 @@ var ItemList = React.createClass({
         onChange: React.PropTypes.func.isRequired,
         onDelete: React.PropTypes.func.isRequired
     },
-    itemChanged: function () {
-        this.props.onChange(item);
-    },
-    onDelete: function () {
-        this.props.onDelete(item);
-    },
     render: function () {
         var todoList = this.props.data.map(function (item) {
             if (item) {
-                return <Item item={item} key={item.id} onChange={this.itemChanged} onDelete={this.onDelete } />;
+                return <Item item={item} key={item.id} onChange={this.props.onChange} onDelete={this.props.onDelete } />;
             }
         }, this);
         return (
@@ -251,9 +240,17 @@ var App = React.createClass({
         CookieLib.setCookie("defaultList", list, 0);
         this.setState({ user: user, list: list });
     },
+    userAdded: function (evt) {
+        evt.preventDefault();
+        console.log("TBD: User added.");
+    },
     listChanged: function (list) {
         this.setState({ list: list });
         CookieLib.setCookie("defaultList", list, 30);
+    },
+    listAdded: function (evt) {
+        evt.preventDefault();
+        console.log("TBD: List added.");
     },
     render: function () {
         var user = this.getUser();
@@ -266,12 +263,14 @@ var App = React.createClass({
         var userInfo = {
             list      : DataLib.extractUsers(this.state.data),
             selection : this.state.user,
-            onChange  : this.userChanged
+            onChange  : this.userChanged,
+            onAdd     : this.userAdded
         }
         var listInfo = {
             list      : DataLib.extractLists(this.state.data, this.state.user),
             selection : this.state.list,
-            onChange  : this.listChanged
+            onChange  : this.listChanged,
+            onAdd     : this.listAdded
         };
         return (
             <div className="container">
