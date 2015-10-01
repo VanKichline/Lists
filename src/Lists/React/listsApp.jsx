@@ -15,6 +15,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+require(["DataHandler", "CookieHandler"], function (DataHandler, CookieHandler) {
+    React.render(<App url="/api/items/" />, document.getElementById('content'));
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -233,8 +236,6 @@ var App = React.createClass({
         }.bind(this);
         xhr.send();
     },
-    dataLoaded: function (data) {
-    },
     getUser: function () {
         var selUser = this.state.user || DataHandler.getDefaultUser(this.state.data);
         return selUser;
@@ -285,6 +286,3 @@ var App = React.createClass({
         );
     }
 });
-
-
-React.render(<App url="/api/items/" />, document.getElementById('content'));

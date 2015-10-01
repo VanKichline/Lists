@@ -1,5 +1,5 @@
 ﻿// Cookie functions: http://www.w3schools.com/js/js_cookies.asp
-CookieHandler = (function () {
+define (function () {
     return {
         setCookie: function (cname, cvalue, exdays) {
             var d = new Date();
@@ -20,4 +20,4 @@ CookieHandler = (function () {
             return "";
         },
     }
-})();
+});

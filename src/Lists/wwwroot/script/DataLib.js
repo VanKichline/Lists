@@ -1,4 +1,4 @@
-﻿DataHandler = (function () {
+﻿define (function () {
     return {
         extractUsersAndLists: function (data) {
             var uAndL = {};
@@ -56,4 +56,4 @@
             return selList;
         }
     }
-})();
+});
