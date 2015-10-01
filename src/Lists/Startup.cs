@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Lists.Middleware;
+using Lists.Models;
 using Microsoft.AspNet.Builder;
-//using Microsoft.AspNet.Diagnostics.Entity;
 using Microsoft.AspNet.Hosting;
 using Microsoft.Data.Entity;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
-using Lists.Models;
 
-namespace Lists
-{
+namespace Lists {
     public class Startup
     {
         public Startup(IHostingEnvironment env, IApplicationEnvironment appEnv)
@@ -43,10 +37,11 @@ namespace Lists
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // Configure the HTTP request pipeline.
-            app.UseStaticFiles();
-
             app.UseMvc();
             app.UseDefaultFiles();
+            if (env.IsDevelopment()) {
+                app.UseMiddleware(typeof(DisableCaching));
+            }
             app.UseStaticFiles();
         }
     }
