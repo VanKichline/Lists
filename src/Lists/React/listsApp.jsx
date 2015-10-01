@@ -14,8 +14,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-
-require(["DataHandler", "CookieHandler"], function (DataHandler, CookieHandler) {
+var DataLib, CookieLib;
+require(["DataLib", "CookieLib"], function (dataLib, cookieLib) {
+    DataLib   = dataLib;
+    CookieLib = cookieLib;
     React.render(<App url="/api/items/" />, document.getElementById('content'));
 });
 
@@ -221,8 +223,8 @@ var App = React.createClass({
     getInitialState: function () {
         return {
             data: [],
-            user: CookieHandler.getCookie('defaultUser'),
-            list: CookieHandler.getCookie('defaultList')
+            user: CookieLib.getCookie('defaultUser'),
+            list: CookieLib.getCookie('defaultList')
         };
     },
     componentWillMount: function () {
@@ -237,22 +239,22 @@ var App = React.createClass({
         xhr.send();
     },
     getUser: function () {
-        var selUser = this.state.user || DataHandler.getDefaultUser(this.state.data);
+        var selUser = this.state.user || DataLib.getDefaultUser(this.state.data);
         return selUser;
     },
     getList: function (user) {
-        var selList = this.state.list || DataHandler.getDefaultList(this.state.data, user);
+        var selList = this.state.list || DataLib.getDefaultList(this.state.data, user);
         return selList;
     },
     userChanged: function (user) {
-        var list = DataHandler.getDefaultList(this.state.data, user);
-        CookieHandler.setCookie("defaultUser", user, 30);
-        CookieHandler.setCookie("defaultList", list, 0);
+        var list = DataLib.getDefaultList(this.state.data, user);
+        CookieLib.setCookie("defaultUser", user, 30);
+        CookieLib.setCookie("defaultList", list, 0);
         this.setState({ user: user, list: list });
     },
     listChanged: function (list) {
         this.setState({ list: list });
-        CookieHandler.setCookie("defaultList", list, 30);
+        CookieLib.setCookie("defaultList", list, 30);
     },
     render: function () {
         var user = this.getUser();
@@ -264,12 +266,12 @@ var App = React.createClass({
             }
         });
         var userInfo = {
-            list      : DataHandler.extractUsers(this.state.data),
+            list      : DataLib.extractUsers(this.state.data),
             selection : this.state.user,
             onChange  : this.userChanged
         }
         var listInfo = {
-            list      : DataHandler.extractLists(this.state.data, this.state.user),
+            list      : DataLib.extractLists(this.state.data, this.state.user),
             selection : this.state.list,
             onChange  : this.listChanged
         };
