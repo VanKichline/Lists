@@ -1,5 +1,5 @@
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 
 namespace Lists.Migrations {
     public partial class Initial : Migration
@@ -10,12 +10,12 @@ namespace Lists.Migrations {
                 name: "Item",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    ID = table.Column<int>(isNullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerIdentityStrategy.IdentityColumn),
-                    Done = table.Column<bool>(nullable: false),
-                    ItemText = table.Column<string>(nullable: true),
-                    ListName = table.Column<string>(nullable: true),
-                    UserName = table.Column<string>(nullable: true)
+                    Done = table.Column<bool>(isNullable: false),
+                    ItemText = table.Column<string>(isNullable: true),
+                    ListName = table.Column<string>(isNullable: true),
+                    UserName = table.Column<string>(isNullable: true)
                 },
                 constraints: table =>
                 {

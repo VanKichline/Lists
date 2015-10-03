@@ -12,7 +12,8 @@ namespace Lists.Middleware {
 
         public async Task Invoke(HttpContext httpContext) {
             // File being served is httpContext.Request.Path
-            httpContext.Response.Headers.Add("Cache-Control", "no-cache");
+            string[] values = { "no-cache" };
+            httpContext.Response.Headers.Add("Cache-Control", values);
             await _next.Invoke(httpContext);
         }
     }

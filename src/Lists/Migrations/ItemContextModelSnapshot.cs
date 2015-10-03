@@ -1,7 +1,8 @@
 using Lists.Models;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 
 namespace Lists.Migrations {
     [DbContext(typeof(ItemContext))]
