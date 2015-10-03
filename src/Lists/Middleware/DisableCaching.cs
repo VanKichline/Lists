@@ -12,8 +12,12 @@ namespace Lists.Middleware {
 
         public async Task Invoke(HttpContext httpContext) {
             // File being served is httpContext.Request.Path
-            string[] values = { "no-cache" };
-            httpContext.Response.Headers.Add("Cache-Control", values);
+            string path = httpContext.Request.Path.ToString();
+            // Let library files remained cached
+            if (!path.StartsWith("/lib/", System.StringComparison.CurrentCultureIgnoreCase)) {
+                // Make sure this file will be reloaded by the browser
+                httpContext.Response.Headers.Add("Cache-Control", new string[] { "no-cache" });
+            }
             await _next.Invoke(httpContext);
         }
     }
