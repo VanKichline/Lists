@@ -1,7 +1,10 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 
-namespace Lists.Migrations {
+namespace Lists.Migrations
+{
     public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
