@@ -1,6 +1,7 @@
 ﻿using Lists.Middleware;
 using Lists.Models;
 using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.Diagnostics.Entity;
 using Microsoft.AspNet.Hosting;
 using Microsoft.Data.Entity;
 using Microsoft.Dnx.Runtime;
@@ -36,13 +37,19 @@ namespace Lists {
         // Configure is called after ConfigureServices is called.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            if (env.IsDevelopment()) {
+                app.UseBrowserLink();
+                app.UseErrorPage();
+                app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
+            }
+
             // Configure the HTTP request pipeline.
-            app.UseMvc();
-            app.UseDefaultFiles();
             if (env.IsDevelopment()) {
                 app.UseMiddleware(typeof(DisableCaching));
             }
+            app.UseDefaultFiles();
             app.UseStaticFiles();
+            app.UseMvc();
         }
     }
 }
