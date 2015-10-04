@@ -37,12 +37,6 @@ namespace Lists {
         // Configure is called after ConfigureServices is called.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment()) {
-                app.UseBrowserLink();
-                app.UseErrorPage();
-                app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
-            }
-
             // Configure the HTTP request pipeline.
             if (env.IsDevelopment()) {
                 app.UseMiddleware(typeof(DisableCaching));
