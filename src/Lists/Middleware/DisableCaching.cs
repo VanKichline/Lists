@@ -1,5 +1,5 @@
-﻿// Set _rejectStrings to regular expressions representing files or directories to which NoCache headers are NOT applies
-// Set _accpetStrings to regular expressions representing files or directories to which NoCache headers ARE applies
+﻿// Set _rejectStrings to regular expressions representing files or directories to which NoCache headers are NOT applied
+// Set _accpetStrings to regular expressions representing files or directories to which NoCache headers ARE applied
 
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Http;
