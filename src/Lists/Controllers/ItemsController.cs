@@ -39,14 +39,10 @@ namespace Lists.Controllers
 
         // POST api/items
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody]Item item) {
+        public IActionResult Post([FromBody]Item item) {
             if (null != item) {
-                if (0 < _context.Items.Where(attempt => attempt.ID == item.ID).Count()) {
-                    return HttpBadRequest();
-                }
-                _context.Items.Attach(item);
-                _context.Entry(item).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
+                _context.Items.Add(item);
+                _context.SaveChanges();
                 return CreatedAtRoute("GetItem", new { controller = "Item", id = item.ID }, item);
             }
             else {
