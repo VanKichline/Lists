@@ -38,6 +38,7 @@ namespace Lists.Controllers
         }
 
         // POST api/items
+        // Do NOT include ID attribute in POSTed Item object
         [HttpPost]
         public IActionResult Post([FromBody]Item item) {
             if (null != item) {
@@ -51,15 +52,44 @@ namespace Lists.Controllers
         }
 
         // PUT api/items/5
+        // Item object may or may not include ID, but ID param will be used rather than item.ID.
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromBody]Item item)
         {
+            if(null != item) {
+                Item orig = null;
+                var result = _context.Items.Where(x => x.ID == id);
+                if (result.Count() > 0) {
+                    orig = result.First();
+                }
+                if(null != orig) {
+                    orig.ItemText = item.ItemText;
+                    orig.Done = item.Done;
+                    _context.Items.Update(orig);
+                    _context.SaveChanges();
+                    return new NoContentResult();
+                }
+                else {
+                    return HttpNotFound();
+                }
+            }
+            else {
+                return HttpBadRequest();
+            }
         }
 
         // DELETE api/items/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            var result = _context.Items.Where(x => x.ID == id);
+            if (result.Count() > 0) {
+                Item item = result.First();
+                _context.Items.Remove(item);
+                _context.SaveChanges();
+                return new NoContentResult();
+            }
+            return HttpNotFound();
         }
     }
 }
