@@ -18,6 +18,19 @@
             }
             return items;
         },
+        deleteItem: function (id, items) {
+            var i = 0, found = false;
+            for (i = 0; i < items.length; i++) {
+                if (items[i].ID === id) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                items.splice(i, 1);
+            }
+            return items;
+        },
         extractUsersAndLists: function (data) {
             var uAndL = {};
             data.map(function (item) {

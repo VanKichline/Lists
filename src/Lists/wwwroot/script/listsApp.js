@@ -189,11 +189,11 @@ var MainPane = React.createClass({displayName: "MainPane",
         data:     React.PropTypes.array.isRequired,     // List items for this user/list selection
         userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
         listInfo: React.PropTypes.object.isRequired,     // { list, selection, onChange }
-        itemChanged: React.PropTypes.func.isRequired
-    },
+        itemChanged: React.PropTypes.func.isRequired,
+        itemDeleted: React.PropTypes.func.isRequired
+},
     addUser: function () { console.log("TBD: Add User"); },
     addList: function () { console.log("TBD: Add list"); },
-    itemDeleted: function (item) { console.log("TBD: " + item.ListName + "/" + item.ItemText + " Deleted"); },
     userChanged: function (user) { this.props.userInfo.onChange(user); },
     listChanged: function (list) { this.props.listInfo.onChange(list); },
     render: function () {
@@ -204,7 +204,7 @@ var MainPane = React.createClass({displayName: "MainPane",
                 ), 
                 React.createElement(ItemList, {data: this.props.data, 
                            onChange: this.props.itemChanged, 
-                           onDelete: this.itemDeleted}
+                           onDelete: this.props.itemDeleted}
                 ), 
                 React.createElement("hr", null), 
                 React.createElement(Operators, null)
@@ -257,6 +257,11 @@ var App = React.createClass({displayName: "App",
         var items = DataLib.changeItem(item.ID, state, this.state.data);
         this.setState({ data: items });
     },
+    itemDeleted: function (item) {
+        console.log("TBD: " + item.ListName + "/" + item.ItemText + " => Deleted");
+        var items = DataLib.deleteItem(item.ID, this.state.data);
+        this.setState({ data: items });
+    },
     render: function () {
         var user = this.getUser();
         var list = this.getList(user);
@@ -285,7 +290,8 @@ var App = React.createClass({displayName: "App",
                 React.createElement(MainPane, {data: todoList, 
                           listInfo: listInfo, 
                           userInfo: userInfo, 
-                          itemChanged: this.itemChanged}
+                          itemChanged: this.itemChanged, 
+                          itemDeleted: this.itemDeleted}
                 )
             )
         );
