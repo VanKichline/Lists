@@ -9,6 +9,15 @@
             }.bind(this);
             xhr.send();
         },
+        changeItem: function (id, doneValue, items) {
+            for (var i in items) {
+                if (items[i].ID === id) {
+                    items[i].Done = doneValue;
+                    break;
+                }
+            }
+            return items;
+        },
         extractUsersAndLists: function (data) {
             var uAndL = {};
             data.map(function (item) {

@@ -188,11 +188,11 @@ var MainPane = React.createClass({
     propTypes: {
         data:     React.PropTypes.array.isRequired,     // List items for this user/list selection
         userInfo: React.PropTypes.object.isRequired,    // { list, selection, onChange }
-        listInfo: React.PropTypes.object.isRequired     // { list, selection, onChange }
+        listInfo: React.PropTypes.object.isRequired,     // { list, selection, onChange }
+        itemChanged: React.PropTypes.func.isRequired
     },
     addUser: function () { console.log("TBD: Add User"); },
     addList: function () { console.log("TBD: Add list"); },
-    itemChanged: function (item, state) { console.log("TBD: " + item.ListName + "/" + item.ItemText + "->" + state); },
     itemDeleted: function (item) { console.log("TBD: " + item.ListName + "/" + item.ItemText + " Deleted"); },
     userChanged: function (user) { this.props.userInfo.onChange(user); },
     listChanged: function (list) { this.props.listInfo.onChange(list); },
@@ -203,7 +203,7 @@ var MainPane = React.createClass({
                            listInfo = {this.props.listInfo}
                 />
                 <ItemList  data     = {this.props.data}
-                           onChange = {this.itemChanged}
+                           onChange = {this.props.itemChanged}
                            onDelete = {this.itemDeleted}
                 />
                 <hr />
@@ -252,6 +252,11 @@ var App = React.createClass({
         evt.preventDefault();
         console.log("TBD: List added.");
     },
+    itemChanged: function (item, state) {
+        console.log("TBD: " + item.ListName + "/" + item.ItemText + "=>" + state);
+        var items = DataLib.changeItem(item.ID, state, this.state.data);
+        this.setState({ data: items });
+    },
     render: function () {
         var user = this.getUser();
         var list = this.getList(user);
@@ -280,6 +285,7 @@ var App = React.createClass({
                 <MainPane data     = {todoList}
                           listInfo = {listInfo}
                           userInfo = {userInfo}
+                          itemChanged = {this.itemChanged}
                 />
             </div>
         );
