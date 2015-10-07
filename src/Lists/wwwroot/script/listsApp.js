@@ -259,6 +259,7 @@ var App = React.createClass({displayName: "App",
     },
     itemDeleted: function (item) {
         console.log("TBD: " + item.ListName + "/" + item.ItemText + " => Deleted");
+        DataLib.deleteData(this.props.url, item.ID);
         var items = DataLib.deleteItem(item.ID, this.state.data);
         this.setState({ data: items });
     },

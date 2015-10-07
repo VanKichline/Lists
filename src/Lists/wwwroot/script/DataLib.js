@@ -9,6 +9,12 @@
             }.bind(this);
             xhr.send();
         },
+        deleteData: function(url, id) {
+            var xhr = new XMLHttpRequest();
+            url += "/" + id;
+            xhr.open('delete', url, true);
+            xhr.send();
+        },
         changeItem: function (id, doneValue, items) {
             for (var i in items) {
                 if (items[i].ID === id) {
